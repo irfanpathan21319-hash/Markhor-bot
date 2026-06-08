@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,36 +21,47 @@
             user-select: none;
         }
         .header {
-            margin-top: 30px;
+            margin-top: 20px;
             text-align: center;
+            width: 100%;
         }
-        .header h1 {
-            font-size: 28px;
-            margin: 0;
-            letter-spacing: 2px;
+        .level-badge {
+            background: rgba(0, 255, 204, 0.2);
             color: #00ffcc;
-        }
-        .balance-container {
-            text-align: center;
-            margin-top: 10px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+            border: 1px solid rgba(0, 255, 204, 0.4);
         }
         .balance {
-            font-size: 42px;
+            font-size: 45px;
             font-weight: bold;
             color: #ffffff;
             text-shadow: 0 0 15px rgba(0, 255, 204, 0.6);
         }
         .coin-name {
-            font-size: 16px;
+            font-size: 14px;
             color: #8a8ab3;
             letter-spacing: 1px;
         }
-        .clicker-container {
-            display: flex;
-            justify-content: center;
+        
+        /* Tab Pages */
+        .page {
+            display: none;
+            width: 100%;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
             flex-grow: 1;
         }
+        .page.active {
+            display: flex;
+        }
+
+        /* Clicker Page Styling */
         .circle-btn {
             width: 220px;
             height: 220px;
@@ -65,67 +75,167 @@
             transition: transform 0.1s ease;
             border: 5px solid #222;
         }
-        .circle-btn:active {
-            transform: scale(0.95);
-        }
-        .circle-btn span {
-            font-size: 70px;
-        }
-        .footer {
-            margin-bottom: 40px;
+        .circle-btn:active { transform: scale(0.95); }
+        .circle-btn span { font-size: 70px; }
+
+        /* Info Box for other pages */
+        .info-box {
             width: 85%;
             background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 15px;
-            text-align: center;
-            box-sizing: border-box;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+            box-sizing: border-box;
         }
-        .energy {
-            font-size: 14px;
+        .invite-btn {
+            background: #00ffcc;
+            color: black;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        /* Bottom Navigation Menu */
+        .nav-menu {
+            width: 100%;
+            background: #171725;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            box-sizing: border-box;
+        }
+        .nav-item {
+            color: #8a8ab3;
+            font-size: 12px;
+            text-align: center;
+            cursor: pointer;
+            flex-grow: 1;
+        }
+        .nav-item.active {
             color: #00ffcc;
+            font-weight: bold;
+        }
+        .nav-item div {
+            font-size: 20px;
+            margin-bottom: 4px;
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>MARKHOR</h1>
-        <div class="balance-container">
-            <div class="balance" id="coin-balance">0</div>
-            <div class="coin-name">$MRK COINS</div>
-        </div>
+        <div class="level-badge" id="user-level">Bronze 🥉</div>
+        <div class="balance" id="coin-balance">0</div>
+        <div class="coin-name">$MRK COINS</div>
     </div>
 
-    <div class="clicker-container">
+    <div class="page active" id="page-mine">
         <div class="circle-btn" id="tap-button">
             <span>🐐</span>
         </div>
+        <p style="color: #00ffcc; font-size: 14px; margin-top: 20px;">⚡ Tap to Earn</p>
     </div>
 
-    <div class="footer">
-        <div class="energy">⚡ Tap to Mine / Earn Tokens</div>
+    <div class="page" id="page-friends">
+        <div class="info-box">
+            <h3>Invite Friends!</h3>
+            <p style="color: #8a8ab3; font-size: 14px;">Har friend ko invite karne par aapko <br><b style="color:#00ffcc">+500 $MRK</b> bonus milega.</p>
+            <input type="text" id="ref-link" value="https://t.me/Mkrewardbot/Markhor?startapp=user123" readonly style="width: 100%; background: #222; border: 1px solid #44; color: #fff; padding: 10px; border-radius: 8px; text-align: center; font-size: 12px; box-sizing: border-box; margin-top: 10px;">
+            <button class="invite-btn" onclick="copyRefLink()">Copy Link 🔗</button>
+        </div>
+    </div>
+
+    <div class="page" id="page-tasks">
+        <div class="info-box" style="display: flex; justify-content: space-between; align-items: center; text-align: left;">
+            <div>
+                <h4 style="margin:0;">Join Telegram Channel</h4>
+                <p style="margin:5px 0 0 0; font-size:12px; color:#8a8ab3;">+1,000 $MRK Coins</p>
+            </div>
+            <button style="background:#00ffcc; border:none; padding:8px 15px; border-radius:5px; font-weight:bold;" onclick="alert('Channel Open Karo!')">Join</button>
+        </div>
+    </div>
+
+    <div class="nav-menu">
+        <div class="nav-item active" id="tab-mine" onclick="switchTab('mine')">
+            <div>⛏️</div>
+            Mine
+        </div>
+        <div class="nav-item" id="tab-friends" onclick="switchTab('friends')">
+            <div>👥</div>
+            Friends
+        </div>
+        <div class="nav-item" id="tab-tasks" onclick="switchTab('tasks')">
+            <div>📋</div>
+            Tasks
+        </div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
+        // Load values from LocalStorage
         let balance = localStorage.getItem('markhor_balance') ? parseFloat(localStorage.getItem('markhor_balance')) : 0;
         const balanceDisplay = document.getElementById('coin-balance');
+        const userLevelDisplay = document.getElementById('user-level');
         const tapButton = document.getElementById('tap-button');
 
-        balanceDisplay.innerText = balance.toFixed(0);
+        // Dynamic Referral Link generation using Telegram User ID
+        const userId = tg.initDataUnsafe?.user?.id || "guest";
+        document.getElementById('ref-link').value = `https://t.me/Mkrewardbot/Markhor?startapp=${userId}`;
 
-        tapButton.addEventListener('click', (e) => {
-            balance += 1;
+        // Level Logic based on Coins
+        function updateLevel() {
+            if (balance < 500) {
+                userLevelDisplay.innerText = "Bronze 🥉";
+            } else if (balance >= 500 && balance < 2500) {
+                userLevelDisplay.innerText = "Silver 🥈";
+            } else if (balance >= 2500 && balance < 10000) {
+                userLevelDisplay.innerText = "Gold 🥇";
+            } else {
+                userLevelDisplay.innerText = "Diamond 💎";
+            }
+        }
+
+        // Show Balance & Level on Startup
+        balanceDisplay.innerText = balance.toFixed(0);
+        updateLevel();
+
+        // Tap Functionality
+        tapButton.addEventListener('click', () => {
+            balance += 1; 
             balanceDisplay.innerText = balance.toFixed(0);
             localStorage.setItem('markhor_balance', balance);
+            updateLevel();
 
-            if (navigator.vibrate) {
-                navigator.vibrate(10);
-            }
+            if (navigator.vibrate) { tg.HapticFeedback.impactOccurred('medium'); }
         });
+
+        // Tab Navigation Logic
+        function switchTab(tabName) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+
+            document.getElementById(`page-${tabName}`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        // Copy Referral Link
+        function copyRefLink() {
+            const copyText = document.getElementById("ref-link");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+            alert("Referral link copy ho gaya!");
+        }
     </script>
 </body>
 </html>
