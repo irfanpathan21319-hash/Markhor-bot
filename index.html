@@ -148,7 +148,7 @@
         <div class="info-box">
             <h3>Invite Friends!</h3>
             <p style="color: #8a8ab3; font-size: 14px;">Har friend ko invite karne par aapko <br><b style="color:#00ffcc">+500 $MRK</b> bonus milega.</p>
-            <input type="text" id="ref-link" value="https://t.me/Mkrewardbot/Markhor?startapp=user123" readonly style="width: 100%; background: #222; border: 1px solid #44; color: #fff; padding: 10px; border-radius: 8px; text-align: center; font-size: 12px; box-sizing: border-box; margin-top: 10px;">
+            <input type="text" id="ref-link" value="" readonly style="width: 100%; background: #222; border: 1px solid #44; color: #fff; padding: 10px; border-radius: 8px; text-align: center; font-size: 12px; box-sizing: border-box; margin-top: 10px;">
             <button class="invite-btn" onclick="copyRefLink()">Copy Link 🔗</button>
         </div>
     </div>
@@ -159,11 +159,12 @@
                 <h4 style="margin:0;">Join Telegram Channel</h4>
                 <p style="margin:5px 0 0 0; font-size:12px; color:#8a8ab3;">+1,000 $MRK Coins</p>
             </div>
-            <button style="background:#00ffcc; border:none; padding:8px 15px; border-radius:5px; font-weight:bold;" onclick="alert('Channel Open Karo!')">Join</button>
+            <button style="background:#00ffcc; border:none; padding:8px 15px; border-radius:5px; font-weight:bold;" onclick="alert('Task system active soon!')">Join</button>
         </div>
     </div>
 
     <div class="nav-menu">
+        <div class="nav-menu">
         <div class="nav-item active" id="tab-mine" onclick="switchTab('mine')">
             <div>⛏️</div>
             Mine
@@ -182,53 +183,100 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Load values from LocalStorage
-        let balance = localStorage.getItem('markhor_balance') ? parseFloat(localStorage.getItem('markhor_balance')) : 0;
+        // Firebase Configuration URL
+        const firebaseURL = "https://markhor-bot-default-rtdb.firebaseio.com";
+
+        // Get Telegram User Info
+        const userId = tg.initDataUnsafe?.user?.id || "guest_user";
+        const userName = tg.initDataUnsafe?.user?.first_name || "Irfan Player";
+        
+        // Generate Referral Link
+        document.getElementById('ref-link').value = `https://t.me/Mkrewardbot/Markhor?startapp=${userId}`;
+
+        let balance = 0;
         const balanceDisplay = document.getElementById('coin-balance');
         const userLevelDisplay = document.getElementById('user-level');
         const tapButton = document.getElementById('tap-button');
 
-        // Dynamic Referral Link generation using Telegram User ID
-        const userId = tg.initDataUnsafe?.user?.id || "guest";
-        document.getElementById('ref-link').value = `https://t.me/Mkrewardbot/Markhor?startapp=${userId}`;
-
-        // Level Logic based on Coins
+        // Level Logic
         function updateLevel() {
-            if (balance < 500) {
-                userLevelDisplay.innerText = "Bronze 🥉";
-            } else if (balance >= 500 && balance < 2500) {
-                userLevelDisplay.innerText = "Silver 🥈";
-            } else if (balance >= 2500 && balance < 10000) {
-                userLevelDisplay.innerText = "Gold 🥇";
-            } else {
-                userLevelDisplay.innerText = "Diamond 💎";
+            if (balance < 500) userLevelDisplay.innerText = "Bronze 🥉";
+            else if (balance >= 500 && balance < 2500) userLevelDisplay.innerText = "Silver 🥈";
+            else if (balance >= 2500 && balance < 10000) userLevelDisplay.innerText = "Gold 🥇";
+            else userLevelDisplay.innerText = "Diamond 💎";
+        }
+
+        // Load or Create User Data in Firebase Database
+        function loadUserData() {
+            fetch(`${firebaseURL}/users/${userId}.json`)
+            .then(res => res.json())
+            .then(data => {
+                if(data) {
+                    balance = data.balance || 0;
+                } else {
+                    // New user creation
+                    balance = 0;
+                    saveUserData();
+                    checkReferral();
+                }
+                balanceDisplay.innerText = balance.toFixed(0);
+                updateLevel();
+            });
+        }
+
+        // Save Data to Firebase Database
+        function saveUserData() {
+            fetch(`${firebaseURL}/users/${userId}.json`, {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    username: userName,
+                    balance: balance
+                })
+            });
+        }
+
+        // Check if user came via someone's Referral Link
+        function checkReferral() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refId = tg.initDataUnsafe?.start_param; // Telegram standard ref param
+            
+            if (refId && refId !== userId) {
+                // Reward the inviter
+                fetch(`${firebaseURL}/users/${refId}.json`)
+                .then(res => res.json())
+                .then(inviterData => {
+                    if (inviterData) {
+                        let newInviterBalance = (inviterData.balance || 0) + 500;
+                        fetch(`${firebaseURL}/users/${refId}.json`, {
+                            method: 'PATCH',
+                            body: JSON.stringify({ balance: newInviterBalance })
+                        });
+                    }
+                });
             }
         }
 
-        // Show Balance & Level on Startup
-        balanceDisplay.innerText = balance.toFixed(0);
-        updateLevel();
-
-        // Tap Functionality
+        // Tap Click Event
         tapButton.addEventListener('click', () => {
-            balance += 1; 
+            balance += 1;
             balanceDisplay.innerText = balance.toFixed(0);
-            localStorage.setItem('markhor_balance', balance);
             updateLevel();
+            saveUserData(); // Instantly syncs with Firebase!
 
-            if (navigator.vibrate) { tg.HapticFeedback.impactOccurred('medium'); }
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
+            }
         });
 
-        // Tab Navigation Logic
+        // Navigation Tabs Control
         function switchTab(tabName) {
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-
             document.getElementById(`page-${tabName}`).classList.add('active');
             document.getElementById(`tab-${tabName}`).classList.add('active');
         }
 
-        // Copy Referral Link
+        // Copy Link
         function copyRefLink() {
             const copyText = document.getElementById("ref-link");
             copyText.select();
@@ -236,6 +284,9 @@
             navigator.clipboard.writeText(copyText.value);
             alert("Referral link copy ho gaya!");
         }
+
+        // Initialize App
+        loadUserData();
     </script>
 </body>
 </html>
