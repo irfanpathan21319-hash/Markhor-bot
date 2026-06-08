@@ -1,1 +1,131 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Markhor Mining Bot</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e1e2f, #11111d);
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+        .header {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin: 0;
+            letter-spacing: 2px;
+            color: #00ffcc;
+        }
+        .balance-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .balance {
+            font-size: 42px;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 0 0 15px rgba(0, 255, 204, 0.6);
+        }
+        .coin-name {
+            font-size: 16px;
+            color: #8a8ab3;
+            letter-spacing: 1px;
+        }
+        .clicker-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+        }
+        .circle-btn {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #00ffcc 0%, #009977 100%);
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.4), inset 0 0 15px rgba(255,255,255,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            border: 5px solid #222;
+        }
+        .circle-btn:active {
+            transform: scale(0.95);
+        }
+        .circle-btn span {
+            font-size: 70px;
+        }
+        .footer {
+            margin-bottom: 40px;
+            width: 85%;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            box-sizing: border-box;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .energy {
+            font-size: 14px;
+            color: #00ffcc;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>MARKHOR</h1>
+        <div class="balance-container">
+            <div class="balance" id="coin-balance">0</div>
+            <div class="coin-name">$MRK COINS</div>
+        </div>
+    </div>
+
+    <div class="clicker-container">
+        <div class="circle-btn" id="tap-button">
+            <span>🐐</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="energy">⚡ Tap to Mine / Earn Tokens</div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let balance = localStorage.getItem('markhor_balance') ? parseFloat(localStorage.getItem('markhor_balance')) : 0;
+        const balanceDisplay = document.getElementById('coin-balance');
+        const tapButton = document.getElementById('tap-button');
+
+        balanceDisplay.innerText = balance.toFixed(0);
+
+        tapButton.addEventListener('click', (e) => {
+            balance += 1;
+            balanceDisplay.innerText = balance.toFixed(0);
+            localStorage.setItem('markhor_balance', balance);
+
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+        });
+    </script>
+</body>
+</html>
