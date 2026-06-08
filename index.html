@@ -218,6 +218,9 @@
                 }
                 balanceDisplay.innerText = balance.toLocaleString();
                 updateLevel();
+            })
+            .catch(err => {
+                balanceDisplay.innerText = "Error Connecting";
             });
         }
 
