@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markhor Mining Bot</title>
+    <title>Markhor Mining Dashboard</title>
     <style>
+        /* پہلی تصویر والا اصل بلیک اور گولڈن تھیم */
         body {
             background-color: #000000;
             color: #ffffff;
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
@@ -20,20 +21,22 @@
         .app-container {
             width: 100%;
             max-width: 450px;
-            background-color: #000000;
+            background-color: #0b0b0b;
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
             box-sizing: border-box;
             position: relative;
             padding-bottom: 100px;
         }
 
+        /* اوپر کا ٹائٹل اور بڑا بیلنس */
         .header-title {
             text-align: center;
-            font-size: 22px;
-            font-weight: bold;
-            margin-top: 10px;
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 5px;
             color: #ffffff;
+            letter-spacing: 0.5px;
         }
 
         .main-balance {
@@ -41,24 +44,25 @@
             font-size: 52px;
             font-weight: bold;
             color: #f3ba2f;
-            margin: 15px 0 5px 0;
-            text-shadow: 0 0 15px rgba(243, 186, 47, 0.3);
+            margin: 15px 0 10px 0;
+            text-shadow: 0 0 20px rgba(243, 186, 47, 0.35);
         }
 
-        /* Stats Row */
-        .stats-container {
+        /* پہلی تصویر والے دونوں اسٹیٹس بکس (Rank Tier & Profit) */
+        .stats-grid {
             display: flex;
             justify-content: space-between;
             gap: 12px;
             margin-bottom: 20px;
+            width: 100%;
         }
 
         .stat-box {
             background-color: #121212;
             border: 1px solid #1a1a1a;
-            border-radius: 12px;
+            border-radius: 14px;
             flex: 1;
-            padding: 10px;
+            padding: 12px;
             text-align: center;
         }
 
@@ -67,7 +71,8 @@
             font-size: 11px;
             color: #666666;
             font-weight: bold;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
         }
 
         .stat-value {
@@ -76,10 +81,10 @@
             color: #f3ba2f;
         }
 
-        /* Progress Bar */
+        /* ہیمسٹر والا نیو پروگریس بار جو رینک بکس کے اندر فٹ ہے */
         .progress-container {
-            width: 100%;
-            margin-top: 5px;
+            width: 85%;
+            margin: 6px auto 0 auto;
             background-color: #1a1a1a;
             height: 6px;
             border-radius: 10px;
@@ -89,91 +94,61 @@
         .progress-bar {
             height: 100%;
             background: linear-gradient(90deg, #f3ba2f, #f0a500);
-            width: 0%;
-            transition: width 0.3s ease;
+            width: 15%; /* ڈیفالٹ پروگریس */
+            transition: width 0.4s ease;
         }
 
-        /* --- 1. MINING TAB (MAIN COIN TAP) --- */
-        #mining-section {
+        /* ڈیلی سائفر والا ڈیشڈ بارڈر والا باکس */
+        .cipher-box {
+            border: 1px dashed #f3ba2f;
+            border-radius: 15px;
+            padding: 15px;
             text-align: center;
-            margin-top: 30px;
+            margin-bottom: 20px;
+            background-color: rgba(243, 186, 47, 0.01);
+            box-sizing: border-box;
         }
 
-        .coin-container {
-            position: relative;
-            display: inline-block;
-            margin: 20px auto;
-        }
-
-        .coin-btn {
-            width: 220px;
-            height: 220px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #f3ba2f 0%, #b8860b 70%, #1a1a1a 100%);
-            box-shadow: 0 0 30px rgba(243, 186, 47, 0.4);
-            border: 8px solid #121212;
-            cursor: pointer;
-            outline: none;
-            transition: transform 0.05s ease;
+        .cipher-title {
+            color: #f3ba2f;
+            font-weight: bold;
+            margin: 0 0 4px 0;
+            font-size: 14px;
             display: flex;
             justify-content: center;
             align-items: center;
+            gap: 5px;
         }
 
-        .coin-btn:active {
-            transform: scale(0.95);
+        .cipher-desc {
+            font-size: 11px;
+            color: #888888;
+            margin-bottom: 12px;
+            display: block;
         }
 
-        .coin-btn img {
-            width: 130px;
-            height: 130px;
-            pointer-events: none;
-        }
-
-        .energy-container {
-            width: 80%;
-            margin: 20px auto 0 auto;
-            text-align: left;
-        }
-
-        .energy-text {
-            font-size: 14px;
-            font-weight: bold;
+        .cipher-btn {
+            background-color: #151515;
             color: #ffffff;
-            margin-bottom: 5px;
-        }
-
-        .energy-bar-bg {
+            border: 1px solid #222222;
             width: 100%;
-            height: 10px;
-            background-color: #1a1a1a;
+            padding: 12px;
             border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .energy-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4caf50, #8bc34a);
-            width: 100%;
-            transition: width 0.1s ease;
-        }
-
-        /* Floating Text (+1 Animation) */
-        .floating-text {
-            position: absolute;
-            color: #ffffff;
-            font-size: 28px;
             font-weight: bold;
-            pointer-events: none;
-            animation: floatUp 0.8s ease-out forwards;
+            font-size: 13px;
+            cursor: pointer;
+            letter-spacing: 0.5px;
         }
 
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-100px); }
+        /* سیکشن کا مین ٹائٹل */
+        .section-title {
+            font-size: 18px;
+            color: #f3ba2f;
+            margin: 0 0 15px 0;
+            font-weight: bold;
         }
 
-        /* --- 2. UPGRADES TAB --- */
+        /* ================= 1. کارڈز اپ گریڈ سیکشن ================= */
         .cards-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -184,41 +159,140 @@
             background-color: #121212;
             border: 1px solid #1a1a1a;
             border-radius: 16px;
-            padding: 12px;
+            padding: 15px;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
         }
 
-        .card-icon { width: 40px; height: 40px; margin-bottom: 5px; }
-        .card-name { font-size: 13px; font-weight: bold; margin: 4px 0; }
-        .card-profit { color: #f3ba2f; font-size: 11px; margin-bottom: 6px; }
-        .card-level { background-color: #1a1a1a; color: #888888; font-size: 10px; padding: 2px 8px; border-radius: 10px; margin-bottom: 8px; display: inline-block; }
-
-        .action-btn {
-            background-color: #f3ba2f; color: #000; border: none; width: 100%; padding: 8px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;
+        .card-icon {
+            width: 42px;
+            height: 42px;
+            margin: 5px 0 10px 0;
         }
 
-        /* --- 3. TASKS TAB --- */
+        .card-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: #ffffff;
+        }
+
+        .card-profit {
+            color: #f3ba2f;
+            font-size: 11px;
+            margin-bottom: 6px;
+        }
+
+        .card-level {
+            background-color: #1a1a1a;
+            color: #888888;
+            font-size: 11px;
+            padding: 2px 12px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        .buy-btn {
+            background-color: #f3ba2f;
+            color: #000000;
+            border: none;
+            width: 100%;
+            padding: 11px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.1s ease;
+        }
+
+        .buy-btn:active {
+            background-color: #d4a222;
+        }
+
+        /* ================= 2. ٹاسک سیکشن (جب بٹن دبائیں تو یہ شو ہو) ================= */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
         .task-card {
-            background-color: #121212; border: 1px solid #1a1a1a; border-radius: 12px; padding: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+            background-color: #121212;
+            border: 1px solid #1a1a1a;
+            border-radius: 14px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .task-details p { margin: 0; font-size: 13px; font-weight: bold; }
-        .task-details span { color: #f3ba2f; font-size: 11px; }
-        .task-action-btn { background-color: #f3ba2f; color: #000; border: none; padding: 6px 14px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; }
 
-        /* Cipher Box */
-        .cipher-box {
-            border: 1px dashed #f3ba2f; border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 15px; background: rgba(243, 186, 47, 0.01);
+        .task-info p {
+            margin: 0;
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffffff;
         }
-        .cipher-title { color: #f3ba2f; font-weight: bold; margin: 0; font-size: 14px; }
-        .cipher-btn { background-color: #1c1c1c; color: #fff; border: none; width: 100%; padding: 8px; border-radius: 8px; font-weight: bold; margin-top: 8px; cursor: pointer; }
 
-        /* Bottom Navigation */
+        .task-info span {
+            color: #f3ba2f;
+            font-size: 12px;
+            display: block;
+            margin-top: 3px;
+        }
+
+        .task-btn {
+            background-color: #f3ba2f;
+            color: #000000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* ================= نچلی اصل نیویگیشن بار ================= */
         .bottom-nav {
-            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 450px; background-color: #050505; border-top: 1px solid #121212; display: flex; justify-content: space-around; padding: 10px 0; box-sizing: border-box; z-index: 100;
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 450px;
+            background-color: #080808;
+            border-top: 1px solid #151515;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-sizing: border-box;
+            z-index: 100;
         }
-        .nav-item { background: none; border: none; color: #555555; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .nav-item.active { color: #f3ba2f; }
-        .nav-icon { font-size: 18px; }
+
+        .nav-item {
+            background: none;
+            border: none;
+            color: #555555;
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+        }
+
+        .nav-item.active {
+            color: #f3ba2f;
+        }
+
+        .nav-icon {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+        }
     </style>
 </head>
 <body>
@@ -226,104 +300,97 @@
     <div class="app-container">
         
         <div class="header-title">Markhor</div>
-        <div class="main-balance" id="balance-text">52</div>
+        <div class="main-balance" id="balance-display" onclick="triggerTapMining()">52</div>
 
-        <div class="stats-container">
+        <div class="stats-grid">
             <div class="stat-box">
-                <span class="stat-label" id="rank-label-text">BRONZE (1 X TAP)</span>
+                <span class="stat-label" id="rank-text">BRONZE (1 X TAP)</span>
                 <div class="progress-container">
-                    <div class="progress-bar" id="level-bar"></div>
+                    <div class="progress-bar" id="level-bar-fill"></div>
                 </div>
             </div>
             <div class="stat-box">
                 <span class="stat-label">PROFIT PER HOUR</span>
-                <span class="stat-value" id="pph-text">+0 / HR</span>
+                <span class="stat-value" id="pph-display">+0 / HR</span>
             </div>
         </div>
 
-        <h3 id="page-title" style="color: #f3ba2f; margin-bottom: 15px; font-size: 16px;">Tap to Mine</h3>
-
-        <div id="mining-section">
-            <div class="coin-container">
-                <button class="coin-btn" id="coin-trigger">
-                    <img src="https://img.icons8.com/emoji/96/goat-emoji.png" alt="Markhor Goat">
-                </button>
-            </div>
-
-            <div class="energy-container">
-                <div class="energy-text">⚡ <span id="energy-text-val">1000</span> / 1000</div>
-                <div class="energy-bar-bg">
-                    <div class="energy-bar-fill" id="energy-fill"></div>
-                </div>
-            </div>
+        <div class="cipher-box">
+            <p class="cipher-title">🔒 Daily Cipher (Khufia Word)</p>
+            <span class="cipher-desc">Type secret code to win 1,000,000 MK</span>
+            <button class="cipher-btn">ENTER WORD</button>
         </div>
 
-        <div id="upgrades-section" style="display: none;">
-            <div class="cipher-box">
-                <p class="cipher-title">🔒 Daily Cipher (Khufia Word)</p>
-                <button class="cipher-btn">ENTER WORD</button>
-            </div>
+        <div class="section-title" id="page-main-title">Upgrade Cards</div>
+
+        <div id="cards-tab-section">
             <div class="cards-grid">
                 <div class="card">
-                    <img class="card-icon" src="https://img.icons8.com/emoji/96/pick-emoji.png">
+                    <img class="card-icon" src="https://img.icons8.com/emoji/96/pick-emoji.png" alt="Pickaxe">
                     <div class="card-name">Basic Miner</div>
                     <div class="card-profit">Profit: +40/hr</div>
                     <div class="card-level" id="lvl-miner">Lvl 0</div>
-                    <button class="action-btn" onclick="buyCard('miner', 500, 40)">500 MK</button>
+                    <button class="buy-btn" onclick="buyCardUpgrade('miner', 500, 40)">500 MK</button>
                 </div>
                 <div class="card">
-                    <img class="card-icon" src="https://img.icons8.com/emoji/96/safety-vest.png">
+                    <img class="card-icon" src="https://img.icons8.com/emoji/96/safety-vest.png" alt="Vest">
                     <div class="card-name">Team Manager</div>
                     <div class="card-profit">Profit: +100/hr</div>
                     <div class="card-level" id="lvl-manager">Lvl 0</div>
-                    <button class="action-btn" onclick="buyCard('manager', 1200, 100)">1,200 MK</button>
+                    <button class="buy-btn" onclick="buyCardUpgrade('manager', 1200, 100)">1,200 MK</button>
                 </div>
                 <div class="card">
-                    <img class="card-icon" src="https://img.icons8.com/emoji/96/megaphone.png">
+                    <img class="card-icon" src="https://img.icons8.com/emoji/96/megaphone.png" alt="Promo">
                     <div class="card-name">Social Promo</div>
                     <div class="card-profit">Profit: +250/hr</div>
                     <div class="card-level" id="lvl-promo">Lvl 0</div>
-                    <button class="action-btn" onclick="buyCard('promo', 2500, 250)">2,500 MK</button>
+                    <button class="buy-btn" onclick="buyCardUpgrade('promo', 2500, 250)">2,500 MK</button>
                 </div>
                 <div class="card">
-                    <img class="card-icon" src="https://img.icons8.com/emoji/96/office-building.png">
+                    <img class="card-icon" src="https://img.icons8.com/emoji/96/office-building.png" alt="CEO">
                     <div class="card-name">CEO Office</div>
                     <div class="card-profit">Profit: +600/hr</div>
                     <div class="card-level" id="lvl-ceo">Lvl 0</div>
-                    <button class="action-btn" onclick="buyCard('ceo', 5000, 600)">5,000 MK</button>
+                    <button class="buy-btn" onclick="buyCardUpgrade('ceo', 5000, 600)">5,000 MK</button>
                 </div>
             </div>
         </div>
 
-        <div id="tasks-section" style="display: none;">
-            <div class="task-card">
-                <div class="task-details">
-                    <p>Join Telegram Channel</p>
-                    <span>+50,000 MK</span>
+        <div id="tasks-tab-section" style="display: none;">
+            <div class="task-list">
+                <div class="task-card">
+                    <div class="task-info">
+                        <p>Join Telegram Channel</p>
+                        <span>+50,000 MK</span>
+                    </div>
+                    <button class="task-btn" onclick="completeMarkhorTask('tg', 50000, this)">Start</button>
                 </div>
-                <button class="task-action-btn" onclick="doTask('tg', 50000, this)">Start</button>
-            </div>
-            <div class="task-card">
-                <div class="task-details">
-                    <p>Watch YouTube Video</p>
-                    <span>+100,000 MK</span>
+                <div class="task-card">
+                    <div class="task-info">
+                        <p>Watch YouTube Video</p>
+                        <span>+100,000 MK</span>
+                    </div>
+                    <button class="task-btn" onclick="completeMarkhorTask('yt', 100000, this)">Start</button>
                 </div>
-                <button class="task-action-btn" onclick="doTask('yt', 100000, this)">Start</button>
             </div>
         </div>
 
         <div class="bottom-nav">
-            <button class="nav-item active" id="btn-nav-mining" onclick="changeTab('mining')">
-                <span class="nav-icon">⛏️</span><span>Mining</span>
+            <button class="nav-item" onclick="switchActiveTab('mining')">
+                <img class="nav-icon" src="https://img.icons8.com/emoji/48/pick-emoji.png">
+                <span>Mining</span>
             </button>
-            <button class="nav-item" id="btn-nav-upgrades" onclick="changeTab('upgrades')">
-                <span class="nav-icon">📋</span><span>Mine & Upgrades</span>
+            <button class="nav-item active" id="nav-card-btn" onclick="switchActiveTab('upgrades')">
+                <img class="nav-icon" src="https://img.icons8.com/flat-round/64/clipboard.png">
+                <span>Mine & Upgrades</span>
             </button>
-            <button class="nav-item" id="btn-nav-tasks" onclick="changeTab('tasks')">
-                <span class="nav-icon">✔️</span><span>Tasks</span>
+            <button class="nav-item" id="nav-task-btn" onclick="switchActiveTab('tasks')">
+                <img class="nav-icon" src="https://img.icons8.com/emoji/48/checked-box-emoji.png">
+                <span>Tasks</span>
             </button>
-            <button class="nav-item" onclick="changeTab('ranking')">
-                <span class="nav-icon">🏆</span><span>Ranking</span>
+            <button class="nav-item" onclick="switchActiveTab('ranking')">
+                <img class="nav-icon" src="https://img.icons8.com/emoji/48/trophy-emoji.png">
+                <span>Ranking</span>
             </button>
         </div>
 
@@ -333,169 +400,137 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // فائر بیس کی کنفیگریشن
+        // آپ کا اصل فائر بیس ڈیٹا بیس لنک
         const firebaseConfig = {
             databaseURL: "https://markhor-bot-default-rtdb.firebaseio.com"
         };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        const database = firebase.database();
 
-        const userId = "user_irfan_123"; // آپ کا عارضی یوزر آئی ڈی
+        const currentUserId = "user_irfan_123";
 
-        // مین گیم ڈیٹا آبجیکٹ
-        let userGameData = {
+        // گیم کا ڈیٹا اسٹرکچر
+        let gameState = {
             balance: 52,
             pph: 0,
-            energy: 1000,
-            maxEnergy: 1000,
             minerLvl: 0,
             managerLvl: 0,
             promoLvl: 0,
             ceoLvl: 0
         };
 
-        const ranks = [
-            { name: "BRONZE", min: 0, max: 1000 },
-            { name: "SILVER", min: 1000, max: 10000 },
-            { name: "GOLD", min: 10000, max: 50000 },
-            { name: "PLATINUM", min: 50000, max: 200000 },
-            { name: "DIAMOND", min: 200000, max: 5000000 }
+        // ہیمسٹر طرز کے لیولز اور ان کے لیے کوائنز کی حد
+        const rankTiers = [
+            { name: "BRONZE", min: 0, max: 1500 },
+            { name: "SILVER", min: 1500, max: 15000 },
+            { name: "GOLD", min: 15000, max: 75000 },
+            { name: "PLATINUM", min: 75000, max: 300000 },
+            { name: "DIAMOND", min: 300000, max: 10000000 }
         ];
 
+        // پیج لوڈ ہوتے ہی فائر بیس سے ڈیٹا فیچ کرنا
         window.onload = function() {
-            // فائر بیس سے لائیو ڈیٹا حاصل کرنا
-            db.ref('users/' + userId).once('value').then((snapshot) => {
+            database.ref('users/' + currentUserId).once('value').then((snapshot) => {
                 if (snapshot.exists()) {
-                    userGameData = snapshot.val();
-                    // اگر ڈیٹا بیس میں انرجی سیو نہ ہو تو ڈیفالٹ سیٹ کریں
-                    if(userGameData.energy === undefined) userGameData.energy = 1000;
-                    if(userGameData.maxEnergy === undefined) userGameData.maxEnergy = 1000;
+                    gameState = snapshot.val();
                 } else {
-                    saveDataToFirebase();
+                    syncWithFirebase();
                 }
-                updateScreen();
+                refreshDashboard();
             });
 
-            // ہر سیکنڈ بعد پرافٹ پر آور (PPH) کو لوڈ کرنا
+            // پرافٹ پر آور (PPH) کو ہر سیکنڈ لائیو بیلنس میں جوڑنا
             setInterval(() => {
-                if (userGameData.pph > 0) {
-                    userGameData.balance += Math.floor(userGameData.pph / 3600);
+                if (gameState.pph > 0) {
+                    gameState.balance += Math.floor(gameState.pph / 3600);
+                    refreshDashboard();
                 }
-                // آٹو انرجی ریکوری (ہر سیکنڈ 3 انرجی واپس آئے گی جیسے ہیمسٹر میں ہوتا ہے)
-                if (userGameData.energy < userGameData.maxEnergy) {
-                    userGameData.energy = Math.min(userGameData.maxEnergy, userGameData.energy + 3);
-                }
-                updateScreen();
             }, 1000);
         };
 
-        // بٹن ٹیپ مائننگ سسٹم لاجک
-        const coinBtn = document.getElementById("coin-trigger");
-        coinBtn.addEventListener("click", function(e) {
-            if (userGameData.energy >= 1) {
-                userGameData.balance += 1; // فی ٹیپ 1 کوائن پلس
-                userGameData.energy -= 1; // فی ٹیپ 1 انرجی مائنس
-                
-                // پلس 1 اینیمیشن افیکٹ شو کرنا
-                createFloatingText(e.clientX, e.clientY);
-                
-                updateScreen();
-                saveDataToFirebase();
-            }
-        });
-
-        function createFloatingText(x, y) {
-            const floating = document.createElement("div");
-            floating.className = "floating-text";
-            floating.innerText = "+1";
-            floating.style.left = `${x - 15}px`;
-            floating.style.top = `${y - 30}px`;
-            document.body.appendChild(floating);
-            
-            setTimeout(() => { floating.remove(); }, 800);
+        // کلاسک مائننگ: بیلنس ٹیکسٹ پر کلک کرنے سے بھی کوائن مائن ہوں گے
+        function triggerTapMining() {
+            gameState.balance += 1;
+            refreshDashboard();
+            syncWithFirebase();
         }
 
-        function updateScreen() {
-            document.getElementById("balance-text").innerText = userGameData.balance.toLocaleString();
-            document.getElementById("pph-text").innerText = `+${userGameData.pph} / HR`;
-            document.getElementById("energy-text-val").innerText = userGameData.energy;
-            
-            // انرجی بار کی چوڑائی
-            let energyPct = (userGameData.energy / userGameData.maxEnergy) * 100;
-            document.getElementById("energy-fill").style.width = `${energyPct}%`;
+        // انٹرفیس اپڈیٹ کرنے کا مین فنکشن
+        function refreshDashboard() {
+            document.getElementById("balance-display").innerText = gameState.balance.toLocaleString();
+            document.getElementById("pph-display").innerText = `+${gameState.pph} / HR`;
 
-            // کارڈز لیولز اپڈیٹ
-            document.getElementById("lvl-miner").innerText = `Lvl ${userGameData.minerLvl || 0}`;
-            document.getElementById("lvl-manager").innerText = `Lvl ${userGameData.managerLvl || 0}`;
-            document.getElementById("lvl-promo").innerText = `Lvl ${userGameData.promoLvl || 0}`;
-            document.getElementById("lvl-ceo").innerText = `Lvl ${userGameData.ceoLvl || 0}`;
+            // کارڈز کے لائیو لیولز شو کرنا
+            document.getElementById("lvl-miner").innerText = `Lvl ${gameState.minerLvl || 0}`;
+            document.getElementById("lvl-manager").innerText = `Lvl ${gameState.managerLvl || 0}`;
+            document.getElementById("lvl-promo").innerText = `Lvl ${gameState.promoLvl || 0}`;
+            document.getElementById("lvl-ceo").innerText = `Lvl ${gameState.ceoLvl || 0}`;
 
-            // رینک اور پروگریس لیول سسٹم
-            let currentRank = ranks[0];
-            for (let i = 0; i < ranks.length; i++) {
-                if (userGameData.balance >= ranks[i].min) currentRank = ranks[i];
+            // رینک اور پروگریس بار کا آٹو سسٹم
+            let activeRank = rankTiers[0];
+            for (let i = 0; i < rankTiers.length; i++) {
+                if (gameState.balance >= rankTiers[i].min) {
+                    activeRank = rankTiers[i];
+                }
             }
 
-            document.getElementById("rank-label-text").innerText = `${currentRank.name} (1 X TAP)`;
-            let progressPercent = ((userGameData.balance - currentRank.min) / (currentRank.max - currentRank.min)) * 100;
-            if (progressPercent > 100) progressPercent = 100;
-            document.getElementById("level-bar").style.width = `${progressPercent}%`;
+            document.getElementById("rank-text").innerText = `${activeRank.name} (1 X TAP)`;
+            
+            // پروگریس بار کی لائیو فیصد (%) نکالنا
+            let pct = ((gameState.balance - activeRank.min) / (activeRank.max - activeRank.min)) * 100;
+            if (pct > 100) pct = 100;
+            if (pct < 0) pct = 0;
+            document.getElementById("level-bar-fill").style.width = `${pct}%`;
         }
 
-        function saveDataToFirebase() {
-            db.ref('users/' + userId).set(userGameData);
+        function syncWithFirebase() {
+            database.ref('users/' + currentUserId).set(gameState);
         }
 
-        function buyCard(cardType, price, pphIncr) {
-            if (userGameData.balance >= price) {
-                userGameData.balance -= price;
-                userGameData.pph += pphIncr;
+        // کارڈز بائے اور پرافٹ سسٹم
+        function buyCardUpgrade(type, cost, pphReward) {
+            if (gameState.balance >= cost) {
+                gameState.balance -= cost;
+                gameState.pph += pphReward;
 
-                if (cardType === 'miner') userGameData.minerLvl = (userGameData.minerLvl || 0) + 1;
-                if (cardType === 'manager') userGameData.managerLvl = (userGameData.managerLvl || 0) + 1;
-                if (cardType === 'promo') userGameData.promoLvl = (userGameData.promoLvl || 0) + 1;
-                if (cardType === 'ceo') userGameData.ceoLvl = (userGameData.ceoLvl || 0) + 1;
+                if (type === 'miner') gameState.minerLvl = (gameState.minerLvl || 0) + 1;
+                if (type === 'manager') gameState.managerLvl = (gameState.managerLvl || 0) + 1;
+                if (type === 'promo') gameState.promoLvl = (gameState.promoLvl || 0) + 1;
+                if (type === 'ceo') gameState.ceoLvl = (gameState.ceoLvl || 0) + 1;
 
-                updateScreen();
-                saveDataToFirebase();
+                refreshDashboard();
+                syncWithFirebase();
             } else {
-                alert("Not enough MK balance!");
+                alert("Not enough MK Tokens!");
             }
         }
 
-        function doTask(taskId, reward, btn) {
-            userGameData.balance += reward;
-            btn.innerText = "Claimed";
-            btn.disabled = true;
-            btn.style.backgroundColor = "#222222";
-            btn.style.color = "#666666";
-            updateScreen();
-            saveDataToFirebase();
+        // ٹاسک کمپلیٹ کرنے کا فنکشن
+        function completeMarkhorTask(id, reward, element) {
+            gameState.balance += reward;
+            element.innerText = "Claimed";
+            element.disabled = true;
+            element.style.backgroundColor = "#222222";
+            element.style.color = "#666666";
+            refreshDashboard();
+            syncWithFirebase();
         }
 
-        // ٹیب نیویگیشن چینجر فنکشن
-        function changeTab(tab) {
-            document.getElementById("btn-nav-mining").classList.remove("active");
-            document.getElementById("btn-nav-upgrades").classList.remove("active");
-            document.getElementById("btn-nav-tasks").classList.remove("active");
+        // ٹیب سوئچنگ لاجک (ڈیزائن خراب کیے بغیر پیج بدلنا)
+        function switchActiveTab(targetTab) {
+            document.getElementById("nav-card-btn").classList.remove("active");
+            document.getElementById("nav-task-btn").classList.remove("active");
 
-            // تمام سیکشنز کو پہلے چھپائیں
-            document.getElementById("mining-section").style.display = "none";
-            document.getElementById("upgrades-section").style.display = "none";
-            document.getElementById("tasks-section").style.display = "none";
-
-            if (tab === 'mining') {
-                document.getElementById("mining-section").style.display = "block";
-                document.getElementById("btn-nav-mining").classList.add("active");
-                document.getElementById("page-title").innerText = "Tap to Mine";
-            } else if (tab === 'upgrades') {
-                document.getElementById("upgrades-section").style.display = "block";
-                document.getElementById("btn-nav-upgrades").classList.add("active");
-                document.getElementById("page-title").innerText = "Upgrade Cards";
-            } else if (tab === 'tasks') {
-                document.getElementById("tasks-section").style.display = "block";
-                document.getElementById("btn-nav-tasks").classList.add("active");
-                document.getElementById("page-title").innerText = "Earn More MK";
+            if (targetTab === 'upgrades') {
+                document.getElementById("cards-tab-section").style.display = "block";
+                document.getElementById("tasks-tab-section").style.display = "none";
+                document.getElementById("nav-card-btn").classList.add("active");
+                document.getElementById("page-main-title").innerText = "Upgrade Cards";
+            } else if (targetTab === 'tasks') {
+                document.getElementById("cards-tab-section").style.display = "none";
+                document.getElementById("tasks-tab-section").style.display = "block";
+                document.getElementById("nav-task-btn").classList.add("active");
+                document.getElementById("page-main-title").innerText = "Earn More MK";
             }
         }
     </script>
