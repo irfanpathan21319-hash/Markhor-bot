@@ -28,10 +28,18 @@
             background: linear-gradient(180deg, #252525, #151515);
         }
         .balance-container {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: bold;
-            margin-top: 10px;
-            color: #f3ba2f; /* Binance Gold Color */
+            margin-top: 5px;
+            color: #f3ba2f;
+            text-shadow: 0 0 10px rgba(243, 186, 47, 0.5);
+        }
+        .level-text {
+            font-size: 14px;
+            color: #aaa;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         /* Main Content Pages */
         .page {
@@ -48,41 +56,57 @@
         }
         /* Mining Page Styles */
         .coin-btn {
-            width: 220px;
-            height: 220px;
+            width: 240px;
+            height: 240px;
             border-radius: 50%;
-            background: url('https://raw.githubusercontent.com/Mkrewardbot/Markhor/main/logo.png') no-repeat center; /* Aapka Logo */
+            background: url('https://raw.githubusercontent.com/Mkrewardbot/Markhor/main/logo.png') no-repeat center;
             background-size: cover;
             border: 8px solid #f3ba2f;
-            box-shadow: 0 0 30px #f3ba2f;
+            box-shadow: 0 0 35px rgba(243, 186, 47, 0.6);
             cursor: pointer;
-            transition: transform 0.1s ease;
+            transition: transform 0.05s ease;
+            position: relative;
         }
         .coin-btn:active {
-            transform: scale(0.95);
+            transform: scale(0.92);
         }
         .energy-container {
-            margin-top: 30px;
-            width: 80%;
-            max-width: 300px;
+            margin-top: 40px;
+            width: 85%;
+            max-width: 320px;
         }
         .energy-text {
             font-size: 16px;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             text-align: left;
+            font-weight: bold;
         }
         .energy-bar {
             width: 100%;
-            height: 12px;
+            height: 14px;
             background-color: #333;
-            border-radius: 6px;
+            border-radius: 7px;
             overflow: hidden;
+            border: 1px solid #444;
         }
         .energy-fill {
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, #f3ba2f, #ffea79);
             transition: width 0.1s ease;
+        }
+        /* Floating Text Effect (+1) */
+        .floating-text {
+            position: absolute;
+            color: #f3ba2f;
+            font-size: 28px;
+            font-weight: bold;
+            pointer-events: none;
+            animation: floatUp 0.6s ease-out forwards;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-100px) scale(1.2); }
         }
         /* Task & Ref Styles */
         .task-list, .ref-container {
@@ -92,8 +116,8 @@
         .task-item {
             background-color: #222;
             padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 10px;
+            margin-bottom: 12px;
+            border-radius: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -103,34 +127,36 @@
             background-color: #f3ba2f;
             color: #000;
             border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
+            padding: 10px 20px;
+            border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
         }
         /* Bottom Navigation Bar */
         .nav-bar {
-            height: 70px;
-            background-color: #202020;
+            height: 75px;
+            background-color: #1c1c1c;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            border-top: 2px solid #333;
+            border-top: 2px solid #2da;
+            border-top-color: #333;
         }
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: #888;
+            color: #777;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
+            font-weight: 500;
         }
         .nav-item.active {
             color: #f3ba2f;
         }
         .nav-icon {
-            font-size: 20px;
-            margin-bottom: 4px;
+            font-size: 22px;
+            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -139,6 +165,7 @@
     <div class="header">
         <h2>Markhor Token</h2>
         <div class="balance-container" id="balance">0</div>
+        <div class="level-text" id="levelText">Level: Bronze (1)</div>
     </div>
 
     <div id="page-mining" class="page active-page">
@@ -163,7 +190,7 @@
             </div>
             <div class="task-item">
                 <div>
-                    <p style="font-weight: bold;">Subscribe YouTube</p>
+                    <p style="font-weight: bold;">Subscribe YouTube Channel</p>
                     <p style="font-size: 12px; color: #aaa;">+30,000 MK</p>
                 </div>
                 <button class="task-btn" onclick="doTask('https://youtube.com', 30000)">Watch</button>
@@ -176,7 +203,7 @@
         <p style="color: #aaa; text-align: center; margin: 15px 0;">Share your link and earn +25,000 for each friend!</p>
         <div class="ref-container">
             <div class="task-item">
-                <input type="text" id="refLink" value="Loading link..." readonly style="background: transparent; color: #fff; border: none; width: 70%;">
+                <input type="text" id="refLink" value="Loading link..." readonly style="background: transparent; color: #fff; border: none; width: 70%; font-size: 14px;">
                 <button class="task-btn" onclick="copyRef()">Copy</button>
             </div>
         </div>
@@ -198,36 +225,127 @@
     </div>
 
     <script>
-        // Telegram Web App Full Screen Trigger
+        // Telegram Web App Setup
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Is se app full screen ho jayega
+        tg.expand();
 
-        // Page Switching Logic
+        // Get Telegram User ID (Fallback to 'guest' if testing on PC browser)
+        const userId = tg.initDataUnsafe?.user?.id || "guest_user";
+        
+        // **APNA FIREBASE URL IDHAR DAALEIN**
+        const firebaseURL = "https://markhor-bot-default-rtdb.firebaseio.com";
+
+        // App States
+        let coins = 0;
+        let energy = 1000;
+        const maxEnergy = 1000;
+        let tapPower = 1;
+        let userLevel = "Bronze";
+
+        // Load Data From Firebase
+        function loadUserData() {
+            fetch(`${firebaseURL}/users/${userId}.json`)
+                .then(res => res.json())
+                .then(data => {
+                    if(data) {
+                        coins = data.coins || 0;
+                        energy = data.energy !== undefined ? data.energy : maxEnergy;
+                        updateUI();
+                    }
+                }).catch(err => console.log("Error loading data:", err));
+        }
+
+        // Save Data To Firebase
+        function saveUserData() {
+            fetch(`${firebaseURL}/users/${userId}.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ coins: coins, energy: energy })
+            }).catch(err => console.log("Error saving data:", err));
+        }
+
+        // Update UI Elements & Levels
+        function updateUI() {
+            // Level System Logic
+            if (coins >= 5000) { userLevel = "Gold"; tapPower = 3; }
+            else if (coins >= 1000) { userLevel = "Silver"; tapPower = 2; }
+            else { userLevel = "Bronze"; tapPower = 1; }
+
+            document.getElementById('balance').innerText = coins.toLocaleString();
+            document.getElementById('energyText').innerText = `${energy} / ${maxEnergy}`;
+            document.getElementById('levelText').innerText = `Level: ${userLevel} (+${tapPower} Per Tap)`;
+            
+            let energyPercent = (energy / maxEnergy) * 100;
+            document.getElementById('energyFill').style.width = `${energyPercent}%`;
+            
+            // Referral link update
+            document.getElementById('refLink').value = `https://t.me/Mkrewardbot/Markhor?startapp=${userId}`;
+        }
+
+        // Mining Tap Event
+        const coinBtn = document.getElementById('coinBtn');
+        coinBtn.addEventListener('click', (e) => {
+            if (energy >= tapPower) {
+                coins += tapPower;
+                energy -= tapPower;
+                
+                // Floating text effect (+1 / +2 etc)
+                createFloatingText(e.clientX, e.clientY, `+${tapPower}`);
+                
+                updateUI();
+                saveUserData();
+            }
+        });
+
+        // Floating Text (+1) Function
+        function createFloatingText(x, y, text) {
+            const ft = document.createElement('div');
+            ft.className = 'floating-text';
+            ft.innerText = text;
+            ft.style.left = `${x - 20}px`;
+            ft.style.top = `${y - 40}px`;
+            document.body.appendChild(ft);
+            
+            setTimeout(() => { ft.remove(); }, 600);
+        }
+
+        // Auto Energy Recharge (Restores 3 energy every 1 second)
+        setInterval(() => {
+            if (energy < maxEnergy) {
+                energy = Math.min(maxEnergy, energy + 3);
+                updateUI();
+                saveUserData();
+            }
+        }, 1000);
+
+        // Page Navigation
         function switchPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             
-            if(pageId === 'mining') {
-                document.getElementById('page-mining').classList.add('active-page');
-                event.currentTarget.classList.add('active');
-            } else if(pageId === 'tasks') {
-                document.getElementById('page-tasks').classList.add('active-page');
-                event.currentTarget.classList.add('active');
-            } else if(pageId === 'refs') {
-                document.getElementById('page-refs').classList.add('active-page');
-                event.currentTarget.classList.add('active');
-            }
+            document.getElementById(`page-${pageId}`).classList.add('active-page');
+            event.currentTarget.classList.add('active');
         }
 
-        // Basic placeholder functions for Tasks & Copy
+        // Task Function
         function doTask(url, reward) {
             window.open(url, '_blank');
-            // Agle step mein isko Firebase se connect karenge reward dene ke liye
+            coins += reward;
+            updateUI();
+            saveUserData();
+            alert(`Task completed! Received +${reward.toLocaleString()} MK Coins.`);
         }
 
+        // Copy Referral Link
         function copyRef() {
-            alert("Link copied!");
+            const linkInput = document.getElementById('refLink');
+            linkInput.select();
+            document.execCommand('copy');
+            alert("Referral link copied to clipboard!");
         }
+
+        // Start App
+        loadUserData();
     </script>
 </body>
 </html>
