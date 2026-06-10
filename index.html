@@ -2,408 +2,114 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markhor Mining App</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-        body {
-            background-color: #0b0b0b;
-            color: #ffffff;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-        
-        /* Header Setup */
-        .header {
-            padding: 15px;
-            text-align: center;
-            background: linear-gradient(180deg, #181818, #0b0b0b);
-            border-bottom: 2px solid #1f1f1f;
-        }
-        .balance-container {
-            font-size: 42px;
-            font-weight: 800;
-            color: #f3ba2f;
-            text-shadow: 0 0 20px rgba(243, 186, 47, 0.5);
-            margin-bottom: 5px;
-            cursor: pointer; /* Khufia mode trigger */
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            max-width: 420px;
-            width: 100%;
-            margin: 0 auto;
-        }
-        .stat-box {
-            background: #141414;
-            padding: 10px;
-            border-radius: 10px;
-            font-size: 11px;
-            color: #888;
-            text-transform: uppercase;
-            border: 1px solid #1f1f1f;
-        }
-        .stat-box span { display: block; font-weight: bold; color: #f3ba2f; font-size: 15px; margin-top: 4px; }
-
-        /* Views Configuration */
-        .page { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: flex-start; padding: 20px; overflow-y: auto; }
-        .active-page { display: flex; }
-
-        /* Mining Central Engine */
-        .coin-container {
-            margin: auto 0;
-            position: relative;
-        }
-        .coin-btn {
-            width: 240px;
-            height: 240px;
-            border-radius: 50%;
-            /* YAHA AGAR IMAGES KI JAGA LOGO NA DEEKE TO BACKUP ME GOLD COLOR ME DIKHEGA */
-            background: #f3ba2f url('logo.png') no-repeat center;
-            background-size: cover;
-            border: 10px solid #f3ba2f;
-            box-shadow: 0 0 40px rgba(243, 186, 47, 0.5);
-            cursor: pointer;
-            transition: transform 0.05s ease;
-        }
-        .coin-btn:active { transform: scale(0.92); }
-        
-        .energy-container { width: 90%; max-width: 340px; margin-top: auto; margin-bottom: 20px; }
-        .energy-text { font-size: 14px; margin-bottom: 6px; text-align: left; font-weight: bold; color: #aaa; }
-        .energy-bar { width: 100%; height: 14px; background-color: #1a1a1a; border-radius: 7px; overflow: hidden; border: 1px solid #292929; }
-        .energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #f3ba2f, #ffe552); transition: width 0.1s ease; }
-
-        /* Floating +1 Text Effect */
-        .floating-text { position: absolute; color: #f3ba2f; font-size: 32px; font-weight: 900; pointer-events: none; animation: floatUp 0.6s ease-out forwards; text-shadow: 0 2px 4px #000; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-130px) scale(1.25); } }
-
-        /* Special Features Layout (Combo & Cipher) */
-        .bonus-box {
-            background: #1c1c1c;
-            border: 1px dashed #f3ba2f;
-            border-radius: 12px;
-            padding: 12px;
-            width: 100%;
-            max-width: 420px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        .cipher-input {
-            background: #111;
-            border: 1px solid #333;
-            color: #fff;
-            padding: 8px;
-            border-radius: 6px;
-            width: 60%;
-            text-align: center;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        /* Hamster Style Cards Grid */
-        .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 420px; margin-bottom: 25px; }
-        .card-box { background-color: #141414; border: 1px solid #1f1f1f; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; position: relative;}
-        .card-icon { font-size: 32px; margin-bottom: 6px; }
-        .card-title { font-weight: 700; font-size: 14px; color: #ffffff; }
-        .card-profit { font-size: 11px; color: #888; margin: 4px 0; }
-        .card-profit b { color: #f3ba2f; }
-        .card-level { font-size: 11px; background: #222; padding: 2px 10px; border-radius: 12px; margin-bottom: 8px; color: #ccc; }
-        .combo-indicator { position: absolute; top: 5px; right: 5px; font-size: 12px; }
-        
-        .card-btn { background-color: #f3ba2f; color: #000; border: none; width: 100%; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; }
-
-        /* Bottom Tab Navigation Bar */
-        .nav-bar { height: 80px; background-color: #111111; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #1f1f1f; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #555; cursor: pointer; font-size: 12px; font-weight: 600; }
-        .nav-item.active { color: #f3ba2f; }
-        .nav-icon { font-size: 24px; margin-bottom: 4px; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="header">
-        <div class="balance-container" id="balance" onclick="triggerCipherBonus()">0</div>
+    <div class="app-container">
+        
+        <div class="header">
+            <span class="app-title">Markhor</span>
+        </div>
+
+        <div class="balance-container">
+            <h1 id="balance-display">52</h1>
+        </div>
+
+        <div class="rank-container">
+            <div class="rank-header">
+                <span id="rank-name">BRONZE (1 X TAP)</span>
+                <span id="rank-level">Level 1/5</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div id="progress-bar-fill"></div>
+            </div>
+        </div>
+
         <div class="stats-grid">
-            <div class="stat-box">Rank Tier<span id="rankLevel">Bronze (1)</span></div>
-            <div class="stat-box">Profit Per Hour<span id="hourlyRate">+0 MK</span></div>
-        </div>
-    </div>
-
-    <div id="page-mining" class="page active-page">
-        <div class="bonus-box">
-            <p style="font-size: 13px; font-weight: bold; color: #f3ba2f;">Daily Combo Status</p>
-            <p id="comboStatus" style="font-size: 12px; color: #aaa; margin-top: 4px;">Find 3 secret cards to claim 5,000,000 MK!</p>
-        </div>
-
-        <div class="coin-container">
-            <div class="coin-btn" id="coinBtn"></div>
-        </div>
-
-        <div class="energy-container">
-            <div class="energy-text" id="energyText">1000 / 1000</div>
-            <div class="energy-bar"><div class="energy-fill" id="energyFill"></div></div>
-        </div>
-    </div>
-
-    <div id="page-tasks" class="page">
-        <div class="bonus-box">
-            <p style="font-size: 13px; font-weight: bold; color: #ffe552;">🔒 Daily Cipher (Khufia Word)</p>
-            <p style="font-size: 11px; color: #888; margin-bottom: 8px;">Type secret code to win 1,000,000 MK</p>
-            <input type="text" class="cipher-input" id="cipherWord" placeholder="ENTER WORD" oninput="checkCipher()">
-        </div>
-
-        <h3 style="margin-bottom: 12px; color: #f3ba2f; align-self: flex-start; width: 100%;">Upgrade Cards</h3>
-        <div class="cards-grid">
-            <div class="card-box">
-                <div class="card-icon">⛏️</div>
-                <div class="card-title">Basic Miner</div>
-                <div class="card-profit">Profit: <b>+40/hr</b></div>
-                <div class="card-level" id="lvl-c1">Lvl 0</div>
-                <button class="card-btn" id="btn-c1" onclick="buyCard('c1')">500 MK</button>
+            <div class="stat-box">
+                <span class="stat-label">RANK TIER</span>
+                <span class="stat-value" id="tier-text">BRONZE</span>
             </div>
-            <div class="card-box">
-                <div class="card-icon">🦺</div>
-                <div class="card-title">Team Manager</div>
-                <div class="card-profit">Profit: <b>+100/hr</b></div>
-                <div class="card-level" id="lvl-c2">Lvl 0</div>
-                <button class="card-btn" id="btn-c2" onclick="buyCard('c2')">1,200 MK</button>
-            </div>
-            <div class="card-box">
-                <div class="card-icon">📢</div>
-                <div class="card-title">Social Promo</div>
-                <div class="card-profit">Profit: <b>+250/hr</b></div>
-                <div class="card-level" id="lvl-c3">Lvl 0</div>
-                <button class="card-btn" id="btn-c3" onclick="buyCard('c3')">3,000 MK</button>
-            </div>
-            <div class="card-box">
-                <div class="card-icon">🏢</div>
-                <div class="card-title">CEO Office</div>
-                <div class="card-profit">Profit: <b>+600/hr</b></div>
-                <div class="card-level" id="lvl-c4">Lvl 0</div>
-                <button class="card-btn" id="btn-c4" onclick="buyCard('c4')">8,000 MK</button>
+            <div class="stat-box">
+                <span class="stat-label">PROFIT PER HOUR</span>
+                <span class="stat-value" id="pph-text">+0 / HR</span>
             </div>
         </div>
+
+        <div class="cipher-box">
+            <p>🔒 Daily Cipher (Khufia Word)</p>
+            <span>Type secret code to win 1,000,000 MK</span>
+            <button class="cipher-btn">ENTER WORD</button>
+        </div>
+
+        <h3 class="section-title" id="page-title">Upgrade Cards</h3>
+
+        <div id="upgrades-section" class="content-section">
+            <div class="cards-grid">
+                <div class="card">
+                    <img src="https://img.icons8.com/emoji/96/pick-emoji.png" alt="Pickaxe">
+                    <h4>Basic Miner</h4>
+                    <p class="profit">Profit: +40/hr</p>
+                    <p class="level">Lvl 0</p>
+                    <button class="buy-btn" onclick="buyUpgrade('basic_miner', 500, 40)">500 MK</button>
+                </div>
+                <div class="card">
+                    <img src="https://img.icons8.com/emoji/96/safety-vest.png" alt="Vest">
+                    <h4>Team Manager</h4>
+                    <p class="profit">Profit: +100/hr</p>
+                    <p class="level">Lvl 0</p>
+                    <button class="buy-btn" onclick="buyUpgrade('team_manager', 1200, 100)">1,200 MK</button>
+                </div>
+                <div class="card">
+                    <img src="https://img.icons8.com/emoji/96/megaphone.png" alt="Promo">
+                    <h4>Social Promo</h4>
+                    <p class="profit">Profit: +250/hr</p>
+                    <p class="level">Lvl 0</p>
+                    <button class="buy-btn" onclick="buyUpgrade('social_promo', 2500, 250)">2,500 MK</button>
+                </div>
+                <div class="card">
+                    <img src="https://img.icons8.com/emoji/96/office-building.png" alt="CEO">
+                    <h4>CEO Office</h4>
+                    <p class="profit">Profit: +600/hr</p>
+                    <p class="level">Lvl 0</p>
+                    <button class="buy-btn" onclick="buyUpgrade('ceo_office', 5000, 600)">5,000 MK</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tasks-section" class="content-section" style="display: none;">
+            <div class="task-list">
+                <div class="task-card">
+                    <div class="task-info">
+                        <p>Join Markhor Telegram Channel</p>
+                        <span>+50,000 MK</span>
+                    </div>
+                    <button class="task-btn" onclick="completeTask('tg_task', 50000, this)">Start</button>
+                </div>
+                <div class="task-card">
+                    <div class="task-info">
+                        <p>Watch Our YouTube Video</p>
+                        <span>+100,000 MK</span>
+                    </div>
+                    <button class="task-btn" onclick="completeTask('yt_task', 100000, this)">Start</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <button class="nav-item" onclick="switchTab('mining')">⛏️<br>Mining</button>
+            <button class="nav-item active" id="nav-upgrades" onclick="switchTab('upgrades')">📋<br>Mine & Upgrades</button>
+            <button class="nav-item" id="nav-tasks" onclick="switchTab('tasks')">✔️<br>Tasks</button>
+            <button class="nav-item" onclick="switchTab('ranking')">🏆<br>Ranking</button>
+        </div>
+
     </div>
 
-    <div id="page-ranking" class="page">
-        <h3 style="margin-bottom: 20px; color: #f3ba2f;">Leaderboard Ranking</h3>
-        <div class="bonus-box" style="border-color:#333; text-align: left; background:#141414;">
-            <b>#1 Irfan Pathan (You)</b>
-            <div style="color: #f3ba2f; font-weight: 700; font-size: 18px;" id="userRankScore">0 MK</div>
-        </div>
-    </div>
-
-    <div class="nav-bar">
-        <div class="nav-item active" onclick="switchPage('mining')">
-            <div class="nav-icon">⛏️</div>
-            <div>Mining</div>
-        </div>
-        <div class="nav-item" onclick="switchPage('tasks')">
-            <div class="nav-icon">📋</div>
-            <div>Mine & Upgrades</div>
-        </div>
-        <div class="nav-item" onclick="switchPage('ranking')">
-            <div class="nav-icon">🏆</div>
-            <div>Ranking</div>
-        </div>
-    </div>
-
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-
-        const userId = tg.initDataUnsafe?.user?.id || "guest_user";
-        const firebaseURL = "https://markhor-bot-default-rtdb.firebaseio.com";
-
-        // States
-        let coins = 0;
-        let energy = 1000;
-        const maxEnergy = 1000;
-        let tapPower = 1;
-        let hourlyProfit = 0;
-        let rankName = "Bronze";
-
-        // Combo & Cipher Management Engine 
-        // (Roz aap ye words/cards backend ya yahan change kar sakte hain)
-        const secretCipherWord = "MARKHOR"; 
-        const secretComboCards = ["c1", "c3", "c4"]; // Basic Miner, Social Promo, CEO Office
-        let userUpgradedToday = []; 
-        let cipherClaimed = false;
-        let comboClaimed = false;
-
-        let cardsData = {
-            c1: { level: 0, baseCost: 500, profit: 40 },
-            c2: { level: 0, baseCost: 1200, profit: 100 },
-            c3: { level: 0, baseCost: 3000, profit: 250 },
-            c4: { level: 0, baseCost: 8000, profit: 600 }
-        };
-
-        function loadUserData() {
-            fetch(`${firebaseURL}/users/${userId}.json`)
-                .then(res => res.json())
-                .then(data => {
-                    if(data) {
-                        coins = data.coins || 0;
-                        energy = data.energy !== undefined ? data.energy : maxEnergy;
-                        hourlyProfit = data.hourlyProfit || 0;
-                        cipherClaimed = data.cipherClaimed || false;
-                        comboClaimed = data.comboClaimed || false;
-                        userUpgradedToday = data.userUpgradedToday || [];
-                        if(data.cards) { cardsData = data.cards; }
-
-                        if(data.lastTime && hourlyProfit > 0) {
-                            let secondsPassed = Math.floor((Date.now() - data.lastTime) / 1000);
-                            let offlineEarnings = Math.floor((secondsPassed / 3600) * hourlyProfit);
-                            if(offlineEarnings > 0) { coins += offlineEarnings; alert(`Passive earnings offline: +${offlineEarnings.toLocaleString()} MK!`); }
-                        }
-                        updateUI();
-                    }
-                }).catch(err => console.log(err));
-        }
-
-        function saveUserData() {
-            fetch(`${firebaseURL}/users/${userId}.json`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    coins: coins, energy: energy, hourlyProfit: hourlyProfit, 
-                    cards: cardsData, lastTime: Date.now(), cipherClaimed: cipherClaimed,
-                    comboClaimed: comboClaimed, userUpgradedToday: userUpgradedToday
-                })
-            }).catch(err => console.log(err));
-        }
-
-        function updateUI() {
-            if (coins >= 50000) { rankName = "Diamond"; tapPower = 5; }
-            else if (coins >= 10000) { rankName = "Gold"; tapPower = 3; }
-            else if (coins >= 2000) { rankName = "Silver"; tapPower = 2; }
-            else { rankName = "Bronze"; tapPower = 1; }
-
-            document.getElementById('balance').innerText = coins.toLocaleString();
-            document.getElementById('userRankScore').innerText = coins.toLocaleString() + " MK";
-            document.getElementById('energyText').innerText = `${energy} / ${maxEnergy}`;
-            document.getElementById('rankLevel').innerText = `${rankName} (${tapPower} X Tap)`;
-            document.getElementById('hourlyRate').innerText = `+${hourlyProfit.toLocaleString()} / hr`;
-            document.getElementById('energyFill').style.width = `${(energy / maxEnergy) * 100}%`;
-
-            // Combo UI Status Indicator Update
-            if(comboClaimed) {
-                document.getElementById('comboStatus').innerText = "✅ Daily Combo Claimed! (+5,000,000 MK received)";
-                document.getElementById('comboStatus').style.color = "#4edf54";
-            } else {
-                document.getElementById('comboStatus').innerText = `Combo Cards Discovered: ${userUpgradedToday.filter(c => secretComboCards.includes(c)).length} / 3`;
-            }
-
-            if(cipherClaimed) {
-                document.getElementById('cipherWord').disabled = true;
-                document.getElementById('cipherWord').value = "CLAIMED!";
-            }
-
-            for (let id in cardsData) {
-                let card = cardsData[id];
-                let currentCost = Math.floor(card.baseCost * Math.pow(1.5, card.level));
-                document.getElementById(`lvl-${id}`).innerText = `Lvl ${card.level}`;
-                document.getElementById(`btn-${id}`).innerText = `${currentCost.toLocaleString()} MK`;
-            }
-        }
-
-        // Card Progression & Combo Validator Engine
-        function buyCard(id) {
-            let card = cardsData[id];
-            let currentCost = Math.floor(card.baseCost * Math.pow(1.5, card.level));
-
-            if (coins >= currentCost) {
-                coins -= currentCost;
-                hourlyProfit += card.profit;
-                card.level += 1;
-
-                // Add to daily user upgrades vector for tracking combo
-                if(!userUpgradedToday.includes(id)) {
-                    userUpgradedToday.push(id);
-                }
-
-                // Check if Daily Combo configuration matches
-                checkComboMatrix();
-
-                updateUI();
-                saveUserData();
-            } else {
-                alert("Not enough coins!");
-            }
-        }
-
-        // Daily Combo Verification Engine
-        function checkComboMatrix() {
-            if(comboClaimed) return;
-            
-            let matchCount = 0;
-            secretComboCards.forEach(cardId => {
-                if(userUpgradedToday.includes(cardId)) {
-                    matchCount++;
-                }
-            });
-
-            if(matchCount === 3) {
-                comboClaimed = true;
-                coins += 5000000;
-                alert("🎉 BOOM! You solved the Daily Combo! +5,000,000 MK Coins Added!");
-                updateUI();
-                saveUserData();
-            }
-        }
-
-        // Secret Cipher Validator Engine
-        function checkCipher() {
-            if(cipherClaimed) return;
-            let inputField = document.getElementById('cipherWord');
-            if(inputField.value.toUpperCase() === secretCipherWord) {
-                cipherClaimed = true;
-                coins += 1000000;
-                alert("🎉 Access Granted! Daily Cipher Solved! +1,000,000 MK Coins Added!");
-                updateUI();
-                saveUserData();
-            }
-        }
-
-        // Mining Mechanic Execution
-        document.getElementById('coinBtn').addEventListener('click', (e) => {
-            if (energy >= tapPower) {
-                coins += tapPower;
-                energy -= tapPower;
-                createFloatingText(e.clientX, e.clientY, `+${tapPower}`);
-                updateUI();
-                saveUserData();
-            }
-        });
-
-        function createFloatingText(x, y, text) {
-            const ft = document.createElement('div');
-            ft.className = 'floating-text';
-            ft.innerText = text;
-            ft.style.left = `${x - 20}px`;
-            ft.style.top = `${y - 40}px`;
-            document.body.appendChild(ft);
-            setTimeout(() => { ft.remove(); }, 600);
-        }
-
-        // Clock Cycles
-        setInterval(() => { if(hourlyProfit > 0) { coins += Math.floor(hourlyProfit / 360); updateUI(); } }, 10000);
-        setInterval(() => { if (energy < maxEnergy) { energy = Math.min(maxEnergy, energy + 3); updateUI(); } }, 1000);
-
-        function switchPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-            document.querySelectorAll('.nav-bar .nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById(`page-${pageId}`).classList.add('active-page');
-            event.currentTarget.classList.add('active');
-        }
-
-        loadUserData();
-    </script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
