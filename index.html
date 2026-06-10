@@ -3,127 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Markhor Mining Bot</title>
+    <title>Markhor Mining App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1e1e2f, #11111d);
-            color: white;
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            height: 100vh;
-            overflow: hidden;
             user-select: none;
         }
-        .header {
-            margin-top: 20px;
-            text-align: center;
-            width: 100%;
-        }
-        .level-badge {
-            background: rgba(0, 255, 204, 0.2);
-            color: #00ffcc;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-            display: inline-block;
-            margin-bottom: 10px;
-            border: 1px solid rgba(0, 255, 204, 0.4);
-        }
-        .balance {
-            font-size: 45px;
-            font-weight: bold;
+        body {
+            background-color: #151515;
             color: #ffffff;
-            text-shadow: 0 0 15px rgba(0, 255, 204, 0.6);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
         }
-        .coin-name {
-            font-size: 14px;
-            color: #8a8ab3;
-            letter-spacing: 1px;
+        /* Top Header */
+        .header {
+            padding: 15px;
+            text-align: center;
+            background: linear-gradient(180deg, #252525, #151515);
         }
-        
-        /* Tab Pages */
+        .balance-container {
+            font-size: 32px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: #f3ba2f; /* Binance Gold Color */
+        }
+        /* Main Content Pages */
         .page {
+            flex: 1;
             display: none;
-            width: 100%;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
         }
-        .page.active {
+        .active-page {
             display: flex;
         }
-
-        /* Clicker Page Styling */
-        .circle-btn {
+        /* Mining Page Styles */
+        .coin-btn {
             width: 220px;
             height: 220px;
             border-radius: 50%;
-            background: radial-gradient(circle, #00ffcc 0%, #009977 100%);
-            box-shadow: 0 0 30px rgba(0, 255, 204, 0.4), inset 0 0 15px rgba(255,255,255,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: url('https://raw.githubusercontent.com/Mkrewardbot/Markhor/main/logo.png') no-repeat center; /* Aapka Logo */
+            background-size: cover;
+            border: 8px solid #f3ba2f;
+            box-shadow: 0 0 30px #f3ba2f;
             cursor: pointer;
             transition: transform 0.1s ease;
-            border: 5px solid #222;
         }
-        .circle-btn:active { transform: scale(0.95); }
-        .circle-btn span { font-size: 70px; }
-
-        /* Info Box */
-        .info-box {
-            width: 85%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 15px;
-            box-sizing: border-box;
+        .coin-btn:active {
+            transform: scale(0.95);
         }
-        .invite-btn {
-            background: #00ffcc;
-            color: black;
-            border: none;
-            padding: 12px 25px;
+        .energy-container {
+            margin-top: 30px;
+            width: 80%;
+            max-width: 300px;
+        }
+        .energy-text {
             font-size: 16px;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-top: 15px;
-            width: 100%;
+            margin-bottom: 5px;
+            text-align: left;
         }
-
-        /* Bottom Navigation Menu */
-        .nav-menu {
+        .energy-bar {
             width: 100%;
-            background: #171725;
+            height: 12px;
+            background-color: #333;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .energy-fill {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #f3ba2f, #ffea79);
+            transition: width 0.1s ease;
+        }
+        /* Task & Ref Styles */
+        .task-list, .ref-container {
+            width: 100%;
+            max-width: 400px;
+        }
+        .task-item {
+            background-color: #222;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #333;
+        }
+        .task-btn {
+            background-color: #f3ba2f;
+            color: #000;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        /* Bottom Navigation Bar */
+        .nav-bar {
+            height: 70px;
+            background-color: #202020;
             display: flex;
             justify-content: space-around;
-            padding: 12px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            box-sizing: border-box;
+            align-items: center;
+            border-top: 2px solid #333;
         }
         .nav-item {
-            color: #8a8ab3;
-            font-size: 12px;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #888;
             cursor: pointer;
-            flex-grow: 1;
+            font-size: 12px;
         }
         .nav-item.active {
-            color: #00ffcc;
-            font-weight: bold;
+            color: #f3ba2f;
         }
-        .nav-item div {
+        .nav-icon {
             font-size: 20px;
             margin-bottom: 4px;
         }
@@ -132,159 +137,97 @@
 <body>
 
     <div class="header">
-        <div class="level-badge" id="user-level">Bronze 🥉</div>
-        <div class="balance" id="coin-balance">Loading...</div>
-        <div class="coin-name">$MRK COINS</div>
+        <h2>Markhor Token</h2>
+        <div class="balance-container" id="balance">0</div>
     </div>
 
-    <div class="page active" id="page-mine">
-        <div class="circle-btn" id="tap-button">
-            <span>🐐</span>
-        </div>
-        <p style="color: #00ffcc; font-size: 14px; margin-top: 20px;">⚡ Tap to Earn</p>
-    </div>
-
-    <div class="page" id="page-friends">
-        <div class="info-box">
-            <h3>Invite Friends!</h3>
-            <p style="color: #8a8ab3; font-size: 14px;">Har friend ko invite karne par aapko <br><b style="color:#00ffcc">+500 $MRK</b> bonus milega.</p>
-            <input type="text" id="ref-link" value="" readonly style="width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 8px; text-align: center; font-size: 12px; box-sizing: border-box; margin-top: 10px;">
-            <button class="invite-btn" onclick="copyRefLink()">Copy Link 🔗</button>
-        </div>
-    </div>
-
-    <div class="page" id="page-tasks">
-        <div class="info-box" style="display: flex; justify-content: space-between; align-items: center; text-align: left;">
-            <div>
-                <h4 style="margin:0;">Join Telegram Channel</h4>
-                <p style="margin:5px 0 0 0; font-size:12px; color:#8a8ab3;">+1,000 $MRK Coins</p>
+    <div id="page-mining" class="page active-page">
+        <div class="coin-btn" id="coinBtn"></div>
+        <div class="energy-container">
+            <div class="energy-text" id="energyText">1000 / 1000</div>
+            <div class="energy-bar">
+                <div class="energy-fill" id="energyFill"></div>
             </div>
-            <button style="background:#00ffcc; border:none; padding:8px 15px; border-radius:5px; font-weight:bold;" onclick="alert('Task System Coming Soon!')">Join</button>
         </div>
     </div>
 
-    <div class="nav-menu">
-        <div class="nav-item active" id="tab-mine" onclick="switchTab('mine')">
-            <div>⛏️</div>
-            Mine
+    <div id="page-tasks" class="page">
+        <h3 style="margin-bottom: 20px;">Tasks List</h3>
+        <div class="task-list">
+            <div class="task-item">
+                <div>
+                    <p style="font-weight: bold;">Join Telegram Channel</p>
+                    <p style="font-size: 12px; color: #aaa;">+50,000 MK</p>
+                </div>
+                <button class="task-btn" onclick="doTask('https://t.me/Mkrewardbot', 50000)">Join</button>
+            </div>
+            <div class="task-item">
+                <div>
+                    <p style="font-weight: bold;">Subscribe YouTube</p>
+                    <p style="font-size: 12px; color: #aaa;">+30,000 MK</p>
+                </div>
+                <button class="task-btn" onclick="doTask('https://youtube.com', 30000)">Watch</button>
+            </div>
         </div>
-        <div class="nav-item" id="tab-friends" onclick="switchTab('friends')">
-            <div>👥</div>
-            Friends
+    </div>
+
+    <div id="page-refs" class="page">
+        <h3>Invite Friends</h3>
+        <p style="color: #aaa; text-align: center; margin: 15px 0;">Share your link and earn +25,000 for each friend!</p>
+        <div class="ref-container">
+            <div class="task-item">
+                <input type="text" id="refLink" value="Loading link..." readonly style="background: transparent; color: #fff; border: none; width: 70%;">
+                <button class="task-btn" onclick="copyRef()">Copy</button>
+            </div>
         </div>
-        <div class="nav-item" id="tab-tasks" onclick="switchTab('tasks')">
-            <div>📋</div>
-            Tasks
+    </div>
+
+    <div class="nav-bar">
+        <div class="nav-item active" onclick="switchPage('mining')">
+            <div class="nav-icon">⛏️</div>
+            <div>Mining</div>
+        </div>
+        <div class="nav-item" onclick="switchPage('tasks')">
+            <div class="nav-icon">📋</div>
+            <div>Tasks</div>
+        </div>
+        <div class="nav-item" onclick="switchPage('refs')">
+            <div class="nav-icon">👥</div>
+            <div>Friends</div>
         </div>
     </div>
 
     <script>
+        // Telegram Web App Full Screen Trigger
         const tg = window.Telegram.WebApp;
-        tg.expand();
+        tg.expand(); // Is se app full screen ho jayega
 
-        // Firebase Realtime Database Link
-        const firebaseURL = "https://markhor-bot-default-rtdb.firebaseio.com";
-
-        // Get Telegram Real User Data
-        const userId = tg.initDataUnsafe?.user?.id || "5957376144"; 
-        const userName = tg.initDataUnsafe?.user?.username || "Irfanpathan14";
-
-        document.getElementById('ref-link').value = `https://t.me/Mkrewardbot/Markhor?startapp=${userId}`;
-
-        let balance = 0;
-        const balanceDisplay = document.getElementById('coin-balance');
-        const userLevelDisplay = document.getElementById('user-level');
-        const tapButton = document.getElementById('tap-button');
-
-        // Level Up Logic
-        function updateLevel() {
-            if (balance < 5000) userLevelDisplay.innerText = "Bronze 🥉";
-            else if (balance >= 5000 && balance < 50000) userLevelDisplay.innerText = "Silver 🥈";
-            else if (balance >= 50000 && balance < 500000) userLevelDisplay.innerText = "Gold 🥇";
-            else userLevelDisplay.innerText = "Diamond 💎";
-        }
-
-        // 1. Load Data Direct From Firebase
-        function loadUserData() {
-            fetch(`${firebaseURL}/users/${userId}.json`)
-            .then(res => res.json())
-            .then(data => {
-                if(data) {
-                    balance = data.balance || 0;
-                } else {
-                    balance = 0;
-                    saveUserData();
-                    checkReferral();
-                }
-                balanceDisplay.innerText = balance.toLocaleString();
-                updateLevel();
-            })
-            .catch(err => {
-                balanceDisplay.innerText = "Error Connecting";
-            });
-        }
-
-        // 2. Save Data Direct To Firebase
-        function saveUserData() {
-            fetch(`${firebaseURL}/users/${userId}.json`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username: userName,
-                    balance: balance
-                })
-            });
-        }
-
-        // 3. Automated Referral System
-        function checkReferral() {
-            const refId = tg.initDataUnsafe?.start_param;
-            if (refId && refId !== userId) {
-                fetch(`${firebaseURL}/users/${refId}.json`)
-                .then(res => res.json())
-                .then(inviterData => {
-                    if (inviterData) {
-                        let newInviterBalance = (inviterData.balance || 0) + 500;
-                        fetch(`${firebaseURL}/users/${refId}.json`, {
-                            method: 'PATCH',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ balance: newInviterBalance })
-                        });
-                    }
-                });
+        // Page Switching Logic
+        function switchPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            
+            if(pageId === 'mining') {
+                document.getElementById('page-mining').classList.add('active-page');
+                event.currentTarget.classList.add('active');
+            } else if(pageId === 'tasks') {
+                document.getElementById('page-tasks').classList.add('active-page');
+                event.currentTarget.classList.add('active');
+            } else if(pageId === 'refs') {
+                document.getElementById('page-refs').classList.add('active-page');
+                event.currentTarget.classList.add('active');
             }
         }
 
-        // Tap To Mine Event
-        tapButton.addEventListener('click', () => {
-            balance += 1;
-            balanceDisplay.innerText = balance.toLocaleString();
-            updateLevel();
-            saveUserData();
-
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
-            }
-        });
-
-        // Menu Tabs System
-        function switchTab(tabName) {
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            document.getElementById(`page-${tabName}`).classList.add('active');
-            document.getElementById(`tab-${tabName}`).classList.add('active');
+        // Basic placeholder functions for Tasks & Copy
+        function doTask(url, reward) {
+            window.open(url, '_blank');
+            // Agle step mein isko Firebase se connect karenge reward dene ke liye
         }
 
-        function copyRefLink() {
-            const copyText = document.getElementById("ref-link");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(copyText.value);
-            alert("Referral link copy ho gaya!");
+        function copyRef() {
+            alert("Link copied!");
         }
-
-        // Start App
-        loadUserData();
     </script>
 </body>
 </html>
