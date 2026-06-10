@@ -6,205 +6,201 @@
     <title>Markhor Mining App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         body {
-            background-color: #151515;
+            background-color: #0b0b0b;
             color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
             display: flex;
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
         }
-        /* Top Header */
+        
+        /* Top Header Infrastructure */
         .header {
             padding: 15px;
             text-align: center;
-            background: linear-gradient(180deg, #252525, #151515);
+            background: linear-gradient(180deg, #181818, #0b0b0b);
+            border-bottom: 2px solid #1f1f1f;
         }
         .balance-container {
-            font-size: 36px;
-            font-weight: bold;
-            margin-top: 5px;
+            font-size: 42px;
+            font-weight: 800;
             color: #f3ba2f;
-            text-shadow: 0 0 10px rgba(243, 186, 47, 0.5);
+            text-shadow: 0 0 20px rgba(243, 186, 47, 0.5);
+            margin-bottom: 5px;
         }
-        .level-text {
-            font-size: 14px;
-            color: #aaa;
-            margin-top: 5px;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            max-width: 420px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .stat-box {
+            background: #141414;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            color: #888;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            border: 1px solid #1f1f1f;
         }
-        /* Main Content Pages */
-        .page {
-            flex: 1;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        .active-page {
-            display: flex;
-        }
-        /* Mining Page Styles */
+        .stat-box span { display: block; font-weight: bold; color: #f3ba2f; font-size: 15px; margin-top: 4px; }
+
+        /* Viewport Navigation Layout */
+        .page { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: flex-start; padding: 20px; overflow-y: auto; }
+        .active-page { display: flex; }
+
+        /* Core Mining Interface */
         .coin-btn {
             width: 240px;
             height: 240px;
             border-radius: 50%;
             background: url('https://raw.githubusercontent.com/Mkrewardbot/Markhor/main/logo.png') no-repeat center;
             background-size: cover;
-            border: 8px solid #f3ba2f;
-            box-shadow: 0 0 35px rgba(243, 186, 47, 0.6);
+            border: 10px solid #f3ba2f;
+            box-shadow: 0 0 40px rgba(243, 186, 47, 0.5);
             cursor: pointer;
             transition: transform 0.05s ease;
             position: relative;
+            margin: auto 0;
         }
-        .coin-btn:active {
-            transform: scale(0.92);
-        }
-        .energy-container {
-            margin-top: 40px;
-            width: 85%;
-            max-width: 320px;
-        }
-        .energy-text {
-            font-size: 16px;
-            margin-bottom: 8px;
-            text-align: left;
-            font-weight: bold;
-        }
-        .energy-bar {
+        .coin-btn:active { transform: scale(0.92); }
+        
+        .energy-container { width: 90%; max-width: 340px; margin-top: auto; margin-bottom: 20px; }
+        .energy-text { font-size: 14px; margin-bottom: 6px; text-align: left; font-weight: bold; color: #aaa; }
+        .energy-bar { width: 100%; height: 14px; background-color: #1a1a1a; border-radius: 7px; overflow: hidden; border: 1px solid #292929; }
+        .energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #f3ba2f, #ffe552); transition: width 0.1s ease; }
+
+        /* Floating Vector Text Generation (+1) */
+        .floating-text { position: absolute; color: #f3ba2f; font-size: 32px; font-weight: 900; pointer-events: none; animation: floatUp 0.6s ease-out forwards; text-shadow: 0 2px 4px #000; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-130px) scale(1.25); } }
+
+        /* Upgrade Architecture Grid (Hamster System) */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
             width: 100%;
-            height: 14px;
-            background-color: #333;
-            border-radius: 7px;
-            overflow: hidden;
-            border: 1px solid #444;
+            max-width: 420px;
+            margin-bottom: 25px;
         }
-        .energy-fill {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, #f3ba2f, #ffea79);
-            transition: width 0.1s ease;
-        }
-        /* Floating Text Effect (+1) */
-        .floating-text {
-            position: absolute;
-            color: #f3ba2f;
-            font-size: 28px;
-            font-weight: bold;
-            pointer-events: none;
-            animation: floatUp 0.6s ease-out forwards;
-        }
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-100px) scale(1.2); }
-        }
-        /* Task & Ref Styles */
-        .task-list, .ref-container {
-            width: 100%;
-            max-width: 400px;
-        }
-        .task-item {
-            background-color: #222;
-            padding: 15px;
-            margin-bottom: 12px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #333;
-        }
-        .task-btn {
-            background-color: #f3ba2f;
-            color: #000;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        /* Bottom Navigation Bar */
-        .nav-bar {
-            height: 75px;
-            background-color: #1c1c1c;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top: 2px solid #2da;
-            border-top-color: #333;
-        }
-        .nav-item {
+        .card-box {
+            background-color: #141414;
+            border: 1px solid #1f1f1f;
+            border-radius: 14px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            color: #777;
-            cursor: pointer;
+            text-align: center;
+        }
+        .card-icon { font-size: 32px; margin-bottom: 6px; }
+        .card-title { font-weight: 700; font-size: 14px; color: #ffffff; }
+        .card-profit { font-size: 11px; color: #888; margin: 4px 0; }
+        .card-profit b { color: #f3ba2f; }
+        .card-level { font-size: 11px; background: #222; padding: 2px 10px; border-radius: 12px; margin-bottom: 8px; color: #ccc; font-weight: 500; }
+        
+        .card-btn {
+            background-color: #f3ba2f;
+            color: #000000;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 700;
             font-size: 13px;
-            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
         }
-        .nav-item.active {
-            color: #f3ba2f;
-        }
-        .nav-icon {
-            font-size: 22px;
-            margin-bottom: 5px;
-        }
+        .card-btn:active { background-color: #dca424; }
+
+        /* Task & Reference List Rows */
+        .task-list { width: 100%; max-width: 420px; }
+        .task-item { background-color: #141414; padding: 14px; margin-bottom: 12px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #1f1f1f; }
+
+        /* Bottom Tab Navigation Bar */
+        .nav-bar { height: 80px; background-color: #111111; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #1f1f1f; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #555555; cursor: pointer; font-size: 12px; font-weight: 600; }
+        .nav-item.active { color: #f3ba2f; }
+        .nav-icon { font-size: 24px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h2>Markhor Token</h2>
         <div class="balance-container" id="balance">0</div>
-        <div class="level-text" id="levelText">Level: Bronze (1)</div>
+        <div class="stats-grid">
+            <div class="stat-box">Rank Tier<span id="rankLevel">Bronze (1)</span></div>
+            <div class="stat-box">Profit Per Hour<span id="hourlyRate">+0 MK</span></div>
+        </div>
     </div>
 
     <div id="page-mining" class="page active-page">
         <div class="coin-btn" id="coinBtn"></div>
         <div class="energy-container">
             <div class="energy-text" id="energyText">1000 / 1000</div>
-            <div class="energy-bar">
-                <div class="energy-fill" id="energyFill"></div>
-            </div>
+            <div class="energy-bar"><div class="energy-fill" id="energyFill"></div></div>
         </div>
     </div>
 
     <div id="page-tasks" class="page">
-        <h3 style="margin-bottom: 20px;">Tasks List</h3>
+        <h3 style="margin-bottom: 15px; color: #f3ba2f; align-self: flex-start; max-width: 420px; width:100%; margin-left:auto; margin-right:auto;">Upgrade Cards</h3>
+        
+        <div class="cards-grid">
+            <div class="card-box">
+                <div class="card-icon">⛏️</div>
+                <div class="card-title">Basic Miner</div>
+                <div class="card-profit">Profit: <b>+40/hr</b></div>
+                <div class="card-level" id="lvl-c1">Lvl 0</div>
+                <button class="card-btn" id="btn-c1" onclick="buyCard('c1')">500 MK</button>
+            </div>
+            <div class="card-box">
+                <div class="card-icon">🦺</div>
+                <div class="card-title">Team Manager</div>
+                <div class="card-profit">Profit: <b>+100/hr</b></div>
+                <div class="card-level" id="lvl-c2">Lvl 0</div>
+                <button class="card-btn" id="btn-c2" onclick="buyCard('c2')">1,200 MK</button>
+            </div>
+            <div class="card-box">
+                <div class="card-icon">📢</div>
+                <div class="card-title">Social Promo</div>
+                <div class="card-profit">Profit: <b>+250/hr</b></div>
+                <div class="card-level" id="lvl-c3">Lvl 0</div>
+                <button class="card-btn" id="btn-c3" onclick="buyCard('c3')">3,000 MK</button>
+            </div>
+            <div class="card-box">
+                <div class="card-icon">🏢</div>
+                <div class="card-title">CEO Office</div>
+                <div class="card-profit">Profit: <b>+600/hr</b></div>
+                <div class="card-level" id="lvl-c4">Lvl 0</div>
+                <button class="card-btn" id="btn-c4" onclick="buyCard('c4')">8,000 MK</button>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom: 15px; color: #f3ba2f; align-self: flex-start; max-width: 420px; width:100%; margin-left:auto; margin-right:auto;">Social Missions</h3>
         <div class="task-list">
             <div class="task-item">
                 <div>
-                    <p style="font-weight: bold;">Join Telegram Channel</p>
-                    <p style="font-size: 12px; color: #aaa;">+50,000 MK</p>
+                    <p style="font-weight: 700; font-size: 14px;">Join Telegram Channel</p>
+                    <p style="font-size: 11px; color: #888;">+50,000 MK</p>
                 </div>
-                <button class="task-btn" onclick="doTask('https://t.me/Mkrewardbot', 50000)">Join</button>
-            </div>
-            <div class="task-item">
-                <div>
-                    <p style="font-weight: bold;">Subscribe YouTube Channel</p>
-                    <p style="font-size: 12px; color: #aaa;">+30,000 MK</p>
-                </div>
-                <button class="task-btn" onclick="doTask('https://youtube.com', 30000)">Watch</button>
+                <button class="card-btn" style="width: auto; padding: 8px 16px;" onclick="doTask('https://t.me/Mkrewardbot', 50000)">Join</button>
             </div>
         </div>
     </div>
 
-    <div id="page-refs" class="page">
-        <h3>Invite Friends</h3>
-        <p style="color: #aaa; text-align: center; margin: 15px 0;">Share your link and earn +25,000 for each friend!</p>
-        <div class="ref-container">
+    <div id="page-ranking" class="page">
+        <h3 style="margin-bottom: 20px; color: #f3ba2f;">Leaderboard Ranking</h3>
+        <div class="task-list">
             <div class="task-item">
-                <input type="text" id="refLink" value="Loading link..." readonly style="background: transparent; color: #fff; border: none; width: 70%; font-size: 14px;">
-                <button class="task-btn" onclick="copyRef()">Copy</button>
+                <div><b>#1 Irfan Pathan (You)</b></div>
+                <div style="color: #f3ba2f; font-weight: 700;" id="userRankScore">0 MK</div>
             </div>
         </div>
     </div>
@@ -216,33 +212,39 @@
         </div>
         <div class="nav-item" onclick="switchPage('tasks')">
             <div class="nav-icon">📋</div>
-            <div>Tasks</div>
+            <div>Mine & Cards</div>
         </div>
-        <div class="nav-item" onclick="switchPage('refs')">
-            <div class="nav-icon">👥</div>
-            <div>Friends</div>
+        <div class="nav-item" onclick="switchPage('ranking')">
+            <div class="nav-icon">🏆</div>
+            <div>Ranking</div>
         </div>
     </div>
 
     <script>
-        // Telegram Web App Setup
+        // Initialize Telegram Viewport Controls
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Get Telegram User ID (Fallback to 'guest' if testing on PC browser)
         const userId = tg.initDataUnsafe?.user?.id || "guest_user";
-        
-        // **APNA FIREBASE URL IDHAR DAALEIN**
         const firebaseURL = "https://markhor-bot-default-rtdb.firebaseio.com";
 
-        // App States
+        // Global Game State
         let coins = 0;
         let energy = 1000;
         const maxEnergy = 1000;
         let tapPower = 1;
-        let userLevel = "Bronze";
+        let hourlyProfit = 0;
+        let rankName = "Bronze";
 
-        // Load Data From Firebase
+        // Default Object Factory for Cards
+        let cardsData = {
+            c1: { level: 0, baseCost: 500, profit: 40 },
+            c2: { level: 0, baseCost: 1200, profit: 100 },
+            c3: { level: 0, baseCost: 3000, profit: 250 },
+            c4: { level: 0, baseCost: 8000, profit: 600 }
+        };
+
+        // Firebase Sync Downstream (Data Recovery Engine)
         function loadUserData() {
             fetch(`${firebaseURL}/users/${userId}.json`)
                 .then(res => res.json())
@@ -250,54 +252,85 @@
                     if(data) {
                         coins = data.coins || 0;
                         energy = data.energy !== undefined ? data.energy : maxEnergy;
+                        hourlyProfit = data.hourlyProfit || 0;
+                        if(data.cards) { cardsData = data.cards; }
+
+                        // Offline Mathematical Accumulation Logic
+                        if(data.lastTime && hourlyProfit > 0) {
+                            let secondsPassed = Math.floor((Date.now() - data.lastTime) / 1000);
+                            let offlineEarnings = Math.floor((secondsPassed / 3600) * hourlyProfit);
+                            if(offlineEarnings > 0) {
+                                coins += offlineEarnings;
+                                alert(`Welcome back! Your passive upgrades generated +${offlineEarnings.toLocaleString()} MK tokens while you were offline! 💰`);
+                            }
+                        }
                         updateUI();
                     }
-                }).catch(err => console.log("Error loading data:", err));
+                }).catch(err => console.error("Data synchronization failed:", err));
         }
 
-        // Save Data To Firebase
+        // Firebase Sync Upstream (Data Protection Engine)
         function saveUserData() {
             fetch(`${firebaseURL}/users/${userId}.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ coins: coins, energy: energy })
-            }).catch(err => console.log("Error saving data:", err));
+                body: JSON.stringify({ coins: coins, energy: energy, hourlyProfit: hourlyProfit, cards: cardsData, lastTime: Date.now() })
+            }).catch(err => console.error("Upstream upload failed:", err));
         }
 
-        // Update UI Elements & Levels
+        // Dynamic Application Layer Redraw
         function updateUI() {
-            // Level System Logic
-            if (coins >= 5000) { userLevel = "Gold"; tapPower = 3; }
-            else if (coins >= 1000) { userLevel = "Silver"; tapPower = 2; }
-            else { userLevel = "Bronze"; tapPower = 1; }
+            if (coins >= 50000) { rankName = "Diamond"; tapPower = 5; }
+            else if (coins >= 10000) { rankName = "Gold"; tapPower = 3; }
+            else if (coins >= 2000) { rankName = "Silver"; tapPower = 2; }
+            else { rankName = "Bronze"; tapPower = 1; }
 
             document.getElementById('balance').innerText = coins.toLocaleString();
+            document.getElementById('userRankScore').innerText = coins.toLocaleString() + " MK";
             document.getElementById('energyText').innerText = `${energy} / ${maxEnergy}`;
-            document.getElementById('levelText').innerText = `Level: ${userLevel} (+${tapPower} Per Tap)`;
+            document.getElementById('rankLevel').innerText = `${rankName} (${tapPower} X Tap)`;
+            document.getElementById('hourlyRate').innerText = `+${hourlyProfit.toLocaleString()} / hr`;
             
-            let energyPercent = (energy / maxEnergy) * 100;
-            document.getElementById('energyFill').style.width = `${energyPercent}%`;
-            
-            // Referral link update
-            document.getElementById('refLink').value = `https://t.me/Mkrewardbot/Markhor?startapp=${userId}`;
+            document.getElementById('energyFill').style.width = `${(energy / maxEnergy) * 100}%`;
+
+            // Calculate Compound Pricing Curves (Hamster Core Multiplier 1.5x)
+            for (let id in cardsData) {
+                let card = cardsData[id];
+                let currentCost = Math.floor(card.baseCost * Math.pow(1.5, card.level));
+                document.getElementById(`lvl-${id}`).innerText = `Lvl ${card.level}`;
+                document.getElementById(`btn-${id}`).innerText = `${currentCost.toLocaleString()} MK`;
+            }
         }
 
-        // Mining Tap Event
-        const coinBtn = document.getElementById('coinBtn');
-        coinBtn.addEventListener('click', (e) => {
+        // Structural Upgrades Engine
+        function buyCard(id) {
+            let card = cardsData[id];
+            let currentCost = Math.floor(card.baseCost * Math.pow(1.5, card.level));
+
+            if (coins >= currentCost) {
+                coins -= currentCost;
+                hourlyProfit += card.profit;
+                card.level += 1;
+
+                updateUI();
+                saveUserData();
+            } else {
+                alert("Insufficient tokens to initialize asset progression.");
+            }
+        }
+
+        // Micro-transaction Tap Engine
+        document.getElementById('coinBtn').addEventListener('click', (e) => {
             if (energy >= tapPower) {
                 coins += tapPower;
                 energy -= tapPower;
-                
-                // Floating text effect (+1 / +2 etc)
                 createFloatingText(e.clientX, e.clientY, `+${tapPower}`);
-                
                 updateUI();
                 saveUserData();
             }
         });
 
-        // Floating Text (+1) Function
+        // Floating Vector Engine
         function createFloatingText(x, y, text) {
             const ft = document.createElement('div');
             ft.className = 'floating-text';
@@ -305,46 +338,38 @@
             ft.style.left = `${x - 20}px`;
             ft.style.top = `${y - 40}px`;
             document.body.appendChild(ft);
-            
             setTimeout(() => { ft.remove(); }, 600);
         }
 
-        // Auto Energy Recharge (Restores 3 energy every 1 second)
+        // Live Passive Clock Routine (Incremental execution every 10 seconds)
         setInterval(() => {
-            if (energy < maxEnergy) {
-                energy = Math.min(maxEnergy, energy + 3);
+            if(hourlyProfit > 0) {
+                coins += Math.floor(hourlyProfit / 360);
                 updateUI();
-                saveUserData();
             }
+        }, 10000);
+
+        // Standard Regeneration Interval
+        setInterval(() => {
+            if (energy < maxEnergy) { energy = Math.min(maxEnergy, energy + 3); updateUI(); }
         }, 1000);
 
-        // Page Navigation
+        // Switch Tab Routing Engine
         function switchPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            
+            document.querySelectorAll('.nav-bar .nav-item').forEach(i => i.classList.remove('active'));
             document.getElementById(`page-${pageId}`).classList.add('active-page');
             event.currentTarget.classList.add('active');
         }
 
-        // Task Function
         function doTask(url, reward) {
             window.open(url, '_blank');
             coins += reward;
             updateUI();
             saveUserData();
-            alert(`Task completed! Received +${reward.toLocaleString()} MK Coins.`);
         }
 
-        // Copy Referral Link
-        function copyRef() {
-            const linkInput = document.getElementById('refLink');
-            linkInput.select();
-            document.execCommand('copy');
-            alert("Referral link copied to clipboard!");
-        }
-
-        // Start App
+        // Trigger Lifecycle Execution
         loadUserData();
     </script>
 </body>
