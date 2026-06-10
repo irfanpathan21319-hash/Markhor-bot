@@ -10,14 +10,14 @@
         body {
             background-color: #0b0b0b;
             color: #ffffff;
-            font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             display: flex;
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
         }
         
-        /* Top Header Infrastructure */
+        /* Header Setup */
         .header {
             padding: 15px;
             text-align: center;
@@ -30,6 +30,7 @@
             color: #f3ba2f;
             text-shadow: 0 0 20px rgba(243, 186, 47, 0.5);
             margin-bottom: 5px;
+            cursor: pointer; /* Khufia mode trigger */
         }
         .stats-grid {
             display: grid;
@@ -46,28 +47,30 @@
             font-size: 11px;
             color: #888;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
             border: 1px solid #1f1f1f;
         }
         .stat-box span { display: block; font-weight: bold; color: #f3ba2f; font-size: 15px; margin-top: 4px; }
 
-        /* Viewport Navigation Layout */
+        /* Views Configuration */
         .page { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: flex-start; padding: 20px; overflow-y: auto; }
         .active-page { display: flex; }
 
-        /* Core Mining Interface */
+        /* Mining Central Engine */
+        .coin-container {
+            margin: auto 0;
+            position: relative;
+        }
         .coin-btn {
             width: 240px;
             height: 240px;
             border-radius: 50%;
-            background: url('https://raw.githubusercontent.com/Mkrewardbot/Markhor/main/logo.png') no-repeat center;
+            /* YAHA AGAR IMAGES KI JAGA LOGO NA DEEKE TO BACKUP ME GOLD COLOR ME DIKHEGA */
+            background: #f3ba2f url('logo.png') no-repeat center;
             background-size: cover;
             border: 10px solid #f3ba2f;
             box-shadow: 0 0 40px rgba(243, 186, 47, 0.5);
             cursor: pointer;
             transition: transform 0.05s ease;
-            position: relative;
-            margin: auto 0;
         }
         .coin-btn:active { transform: scale(0.92); }
         
@@ -76,57 +79,48 @@
         .energy-bar { width: 100%; height: 14px; background-color: #1a1a1a; border-radius: 7px; overflow: hidden; border: 1px solid #292929; }
         .energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #f3ba2f, #ffe552); transition: width 0.1s ease; }
 
-        /* Floating Vector Text Generation (+1) */
+        /* Floating +1 Text Effect */
         .floating-text { position: absolute; color: #f3ba2f; font-size: 32px; font-weight: 900; pointer-events: none; animation: floatUp 0.6s ease-out forwards; text-shadow: 0 2px 4px #000; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-130px) scale(1.25); } }
 
-        /* Upgrade Architecture Grid (Hamster System) */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+        /* Special Features Layout (Combo & Cipher) */
+        .bonus-box {
+            background: #1c1c1c;
+            border: 1px dashed #f3ba2f;
+            border-radius: 12px;
+            padding: 12px;
             width: 100%;
             max-width: 420px;
-            margin-bottom: 25px;
-        }
-        .card-box {
-            background-color: #141414;
-            border: 1px solid #1f1f1f;
-            border-radius: 14px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
+            margin-bottom: 15px;
             text-align: center;
         }
+        .cipher-input {
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 8px;
+            border-radius: 6px;
+            width: 60%;
+            text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* Hamster Style Cards Grid */
+        .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 420px; margin-bottom: 25px; }
+        .card-box { background-color: #141414; border: 1px solid #1f1f1f; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; position: relative;}
         .card-icon { font-size: 32px; margin-bottom: 6px; }
         .card-title { font-weight: 700; font-size: 14px; color: #ffffff; }
         .card-profit { font-size: 11px; color: #888; margin: 4px 0; }
         .card-profit b { color: #f3ba2f; }
-        .card-level { font-size: 11px; background: #222; padding: 2px 10px; border-radius: 12px; margin-bottom: 8px; color: #ccc; font-weight: 500; }
+        .card-level { font-size: 11px; background: #222; padding: 2px 10px; border-radius: 12px; margin-bottom: 8px; color: #ccc; }
+        .combo-indicator { position: absolute; top: 5px; right: 5px; font-size: 12px; }
         
-        .card-btn {
-            background-color: #f3ba2f;
-            color: #000000;
-            border: none;
-            width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 13px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .card-btn:active { background-color: #dca424; }
-
-        /* Task & Reference List Rows */
-        .task-list { width: 100%; max-width: 420px; }
-        .task-item { background-color: #141414; padding: 14px; margin-bottom: 12px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #1f1f1f; }
+        .card-btn { background-color: #f3ba2f; color: #000; border: none; width: 100%; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; }
 
         /* Bottom Tab Navigation Bar */
         .nav-bar { height: 80px; background-color: #111111; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #1f1f1f; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #555555; cursor: pointer; font-size: 12px; font-weight: 600; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #555; cursor: pointer; font-size: 12px; font-weight: 600; }
         .nav-item.active { color: #f3ba2f; }
         .nav-icon { font-size: 24px; margin-bottom: 4px; }
     </style>
@@ -134,7 +128,7 @@
 <body>
 
     <div class="header">
-        <div class="balance-container" id="balance">0</div>
+        <div class="balance-container" id="balance" onclick="triggerCipherBonus()">0</div>
         <div class="stats-grid">
             <div class="stat-box">Rank Tier<span id="rankLevel">Bronze (1)</span></div>
             <div class="stat-box">Profit Per Hour<span id="hourlyRate">+0 MK</span></div>
@@ -142,7 +136,15 @@
     </div>
 
     <div id="page-mining" class="page active-page">
-        <div class="coin-btn" id="coinBtn"></div>
+        <div class="bonus-box">
+            <p style="font-size: 13px; font-weight: bold; color: #f3ba2f;">Daily Combo Status</p>
+            <p id="comboStatus" style="font-size: 12px; color: #aaa; margin-top: 4px;">Find 3 secret cards to claim 5,000,000 MK!</p>
+        </div>
+
+        <div class="coin-container">
+            <div class="coin-btn" id="coinBtn"></div>
+        </div>
+
         <div class="energy-container">
             <div class="energy-text" id="energyText">1000 / 1000</div>
             <div class="energy-bar"><div class="energy-fill" id="energyFill"></div></div>
@@ -150,8 +152,13 @@
     </div>
 
     <div id="page-tasks" class="page">
-        <h3 style="margin-bottom: 15px; color: #f3ba2f; align-self: flex-start; max-width: 420px; width:100%; margin-left:auto; margin-right:auto;">Upgrade Cards</h3>
-        
+        <div class="bonus-box">
+            <p style="font-size: 13px; font-weight: bold; color: #ffe552;">🔒 Daily Cipher (Khufia Word)</p>
+            <p style="font-size: 11px; color: #888; margin-bottom: 8px;">Type secret code to win 1,000,000 MK</p>
+            <input type="text" class="cipher-input" id="cipherWord" placeholder="ENTER WORD" oninput="checkCipher()">
+        </div>
+
+        <h3 style="margin-bottom: 12px; color: #f3ba2f; align-self: flex-start; width: 100%;">Upgrade Cards</h3>
         <div class="cards-grid">
             <div class="card-box">
                 <div class="card-icon">⛏️</div>
@@ -182,26 +189,13 @@
                 <button class="card-btn" id="btn-c4" onclick="buyCard('c4')">8,000 MK</button>
             </div>
         </div>
-
-        <h3 style="margin-bottom: 15px; color: #f3ba2f; align-self: flex-start; max-width: 420px; width:100%; margin-left:auto; margin-right:auto;">Social Missions</h3>
-        <div class="task-list">
-            <div class="task-item">
-                <div>
-                    <p style="font-weight: 700; font-size: 14px;">Join Telegram Channel</p>
-                    <p style="font-size: 11px; color: #888;">+50,000 MK</p>
-                </div>
-                <button class="card-btn" style="width: auto; padding: 8px 16px;" onclick="doTask('https://t.me/Mkrewardbot', 50000)">Join</button>
-            </div>
-        </div>
     </div>
 
     <div id="page-ranking" class="page">
         <h3 style="margin-bottom: 20px; color: #f3ba2f;">Leaderboard Ranking</h3>
-        <div class="task-list">
-            <div class="task-item">
-                <div><b>#1 Irfan Pathan (You)</b></div>
-                <div style="color: #f3ba2f; font-weight: 700;" id="userRankScore">0 MK</div>
-            </div>
+        <div class="bonus-box" style="border-color:#333; text-align: left; background:#141414;">
+            <b>#1 Irfan Pathan (You)</b>
+            <div style="color: #f3ba2f; font-weight: 700; font-size: 18px;" id="userRankScore">0 MK</div>
         </div>
     </div>
 
@@ -212,7 +206,7 @@
         </div>
         <div class="nav-item" onclick="switchPage('tasks')">
             <div class="nav-icon">📋</div>
-            <div>Mine & Cards</div>
+            <div>Mine & Upgrades</div>
         </div>
         <div class="nav-item" onclick="switchPage('ranking')">
             <div class="nav-icon">🏆</div>
@@ -221,14 +215,13 @@
     </div>
 
     <script>
-        // Initialize Telegram Viewport Controls
         const tg = window.Telegram.WebApp;
         tg.expand();
 
         const userId = tg.initDataUnsafe?.user?.id || "guest_user";
         const firebaseURL = "https://markhor-bot-default-rtdb.firebaseio.com";
 
-        // Global Game State
+        // States
         let coins = 0;
         let energy = 1000;
         const maxEnergy = 1000;
@@ -236,7 +229,14 @@
         let hourlyProfit = 0;
         let rankName = "Bronze";
 
-        // Default Object Factory for Cards
+        // Combo & Cipher Management Engine 
+        // (Roz aap ye words/cards backend ya yahan change kar sakte hain)
+        const secretCipherWord = "MARKHOR"; 
+        const secretComboCards = ["c1", "c3", "c4"]; // Basic Miner, Social Promo, CEO Office
+        let userUpgradedToday = []; 
+        let cipherClaimed = false;
+        let comboClaimed = false;
+
         let cardsData = {
             c1: { level: 0, baseCost: 500, profit: 40 },
             c2: { level: 0, baseCost: 1200, profit: 100 },
@@ -244,7 +244,6 @@
             c4: { level: 0, baseCost: 8000, profit: 600 }
         };
 
-        // Firebase Sync Downstream (Data Recovery Engine)
         function loadUserData() {
             fetch(`${firebaseURL}/users/${userId}.json`)
                 .then(res => res.json())
@@ -253,32 +252,33 @@
                         coins = data.coins || 0;
                         energy = data.energy !== undefined ? data.energy : maxEnergy;
                         hourlyProfit = data.hourlyProfit || 0;
+                        cipherClaimed = data.cipherClaimed || false;
+                        comboClaimed = data.comboClaimed || false;
+                        userUpgradedToday = data.userUpgradedToday || [];
                         if(data.cards) { cardsData = data.cards; }
 
-                        // Offline Mathematical Accumulation Logic
                         if(data.lastTime && hourlyProfit > 0) {
                             let secondsPassed = Math.floor((Date.now() - data.lastTime) / 1000);
                             let offlineEarnings = Math.floor((secondsPassed / 3600) * hourlyProfit);
-                            if(offlineEarnings > 0) {
-                                coins += offlineEarnings;
-                                alert(`Welcome back! Your passive upgrades generated +${offlineEarnings.toLocaleString()} MK tokens while you were offline! 💰`);
-                            }
+                            if(offlineEarnings > 0) { coins += offlineEarnings; alert(`Passive earnings offline: +${offlineEarnings.toLocaleString()} MK!`); }
                         }
                         updateUI();
                     }
-                }).catch(err => console.error("Data synchronization failed:", err));
+                }).catch(err => console.log(err));
         }
 
-        // Firebase Sync Upstream (Data Protection Engine)
         function saveUserData() {
             fetch(`${firebaseURL}/users/${userId}.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ coins: coins, energy: energy, hourlyProfit: hourlyProfit, cards: cardsData, lastTime: Date.now() })
-            }).catch(err => console.error("Upstream upload failed:", err));
+                body: JSON.stringify({ 
+                    coins: coins, energy: energy, hourlyProfit: hourlyProfit, 
+                    cards: cardsData, lastTime: Date.now(), cipherClaimed: cipherClaimed,
+                    comboClaimed: comboClaimed, userUpgradedToday: userUpgradedToday
+                })
+            }).catch(err => console.log(err));
         }
 
-        // Dynamic Application Layer Redraw
         function updateUI() {
             if (coins >= 50000) { rankName = "Diamond"; tapPower = 5; }
             else if (coins >= 10000) { rankName = "Gold"; tapPower = 3; }
@@ -290,10 +290,21 @@
             document.getElementById('energyText').innerText = `${energy} / ${maxEnergy}`;
             document.getElementById('rankLevel').innerText = `${rankName} (${tapPower} X Tap)`;
             document.getElementById('hourlyRate').innerText = `+${hourlyProfit.toLocaleString()} / hr`;
-            
             document.getElementById('energyFill').style.width = `${(energy / maxEnergy) * 100}%`;
 
-            // Calculate Compound Pricing Curves (Hamster Core Multiplier 1.5x)
+            // Combo UI Status Indicator Update
+            if(comboClaimed) {
+                document.getElementById('comboStatus').innerText = "✅ Daily Combo Claimed! (+5,000,000 MK received)";
+                document.getElementById('comboStatus').style.color = "#4edf54";
+            } else {
+                document.getElementById('comboStatus').innerText = `Combo Cards Discovered: ${userUpgradedToday.filter(c => secretComboCards.includes(c)).length} / 3`;
+            }
+
+            if(cipherClaimed) {
+                document.getElementById('cipherWord').disabled = true;
+                document.getElementById('cipherWord').value = "CLAIMED!";
+            }
+
             for (let id in cardsData) {
                 let card = cardsData[id];
                 let currentCost = Math.floor(card.baseCost * Math.pow(1.5, card.level));
@@ -302,7 +313,7 @@
             }
         }
 
-        // Structural Upgrades Engine
+        // Card Progression & Combo Validator Engine
         function buyCard(id) {
             let card = cardsData[id];
             let currentCost = Math.floor(card.baseCost * Math.pow(1.5, card.level));
@@ -312,14 +323,55 @@
                 hourlyProfit += card.profit;
                 card.level += 1;
 
+                // Add to daily user upgrades vector for tracking combo
+                if(!userUpgradedToday.includes(id)) {
+                    userUpgradedToday.push(id);
+                }
+
+                // Check if Daily Combo configuration matches
+                checkComboMatrix();
+
                 updateUI();
                 saveUserData();
             } else {
-                alert("Insufficient tokens to initialize asset progression.");
+                alert("Not enough coins!");
             }
         }
 
-        // Micro-transaction Tap Engine
+        // Daily Combo Verification Engine
+        function checkComboMatrix() {
+            if(comboClaimed) return;
+            
+            let matchCount = 0;
+            secretComboCards.forEach(cardId => {
+                if(userUpgradedToday.includes(cardId)) {
+                    matchCount++;
+                }
+            });
+
+            if(matchCount === 3) {
+                comboClaimed = true;
+                coins += 5000000;
+                alert("🎉 BOOM! You solved the Daily Combo! +5,000,000 MK Coins Added!");
+                updateUI();
+                saveUserData();
+            }
+        }
+
+        // Secret Cipher Validator Engine
+        function checkCipher() {
+            if(cipherClaimed) return;
+            let inputField = document.getElementById('cipherWord');
+            if(inputField.value.toUpperCase() === secretCipherWord) {
+                cipherClaimed = true;
+                coins += 1000000;
+                alert("🎉 Access Granted! Daily Cipher Solved! +1,000,000 MK Coins Added!");
+                updateUI();
+                saveUserData();
+            }
+        }
+
+        // Mining Mechanic Execution
         document.getElementById('coinBtn').addEventListener('click', (e) => {
             if (energy >= tapPower) {
                 coins += tapPower;
@@ -330,7 +382,6 @@
             }
         });
 
-        // Floating Vector Engine
         function createFloatingText(x, y, text) {
             const ft = document.createElement('div');
             ft.className = 'floating-text';
@@ -341,20 +392,10 @@
             setTimeout(() => { ft.remove(); }, 600);
         }
 
-        // Live Passive Clock Routine (Incremental execution every 10 seconds)
-        setInterval(() => {
-            if(hourlyProfit > 0) {
-                coins += Math.floor(hourlyProfit / 360);
-                updateUI();
-            }
-        }, 10000);
+        // Clock Cycles
+        setInterval(() => { if(hourlyProfit > 0) { coins += Math.floor(hourlyProfit / 360); updateUI(); } }, 10000);
+        setInterval(() => { if (energy < maxEnergy) { energy = Math.min(maxEnergy, energy + 3); updateUI(); } }, 1000);
 
-        // Standard Regeneration Interval
-        setInterval(() => {
-            if (energy < maxEnergy) { energy = Math.min(maxEnergy, energy + 3); updateUI(); }
-        }, 1000);
-
-        // Switch Tab Routing Engine
         function switchPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.querySelectorAll('.nav-bar .nav-item').forEach(i => i.classList.remove('active'));
@@ -362,14 +403,6 @@
             event.currentTarget.classList.add('active');
         }
 
-        function doTask(url, reward) {
-            window.open(url, '_blank');
-            coins += reward;
-            updateUI();
-            saveUserData();
-        }
-
-        // Trigger Lifecycle Execution
         loadUserData();
     </script>
 </body>
