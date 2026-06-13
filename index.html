@@ -1,1 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markhor Mining Bot</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        body {
+            background-color: #0b0b0b;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+            -webkit-user-select: none;
+        }
 
+        .game-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Top Header */
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+        .balance-display {
+            font-size: 44px;
+            font-weight: bold;
+            color: #ffb703;
+            margin: 5px 0;
+            text-shadow: 0px 0px 15px rgba(255, 183, 3, 0.4);
+        }
+
+        /* Stats Row */
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        .stat-box {
+            background: #161616;
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #222;
+        }
+        .stat-box span {
+            display: block;
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+        }
+        .stat-box p {
+            margin: 5px 0 0 0;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Main Tap Mining Button Section */
+        .mining-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 25px 0;
+            position: relative;
+        }
+        .markhor-tap-btn {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #252525 0%, #111 100%);
+            border: 6px solid #ffb703;
+            box-shadow: 0 0 30px rgba(255, 183, 3, 0.2);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.05s ease-in-out;
+            overflow: hidden;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .markhor-tap-btn:active {
+            transform: scale(0.95);
+            border-color: #fff;
+            box-shadow: 0 0 40px rgba(255, 183, 3, 0.4);
+        }
+        .markhor-tap-btn img {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        /* Floating +1 Text Animation */
+        .floating-text {
+            position: absolute;
+            color: #ffb703;
+            font-size: 24px;
+            font-weight: bold;
+            pointer-events: none;
+            animation: floatUp 0.6s ease-out forwards;
+            text-shadow: 0px 2px 4px rgba(0,0,0,0.8);
+            z-index: 100;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-100px) scale(1.2); }
+        }
+
+        /* Sections Styling */
+        h2 {
+            font-size: 19px;
+            color: #ffb703;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ffb703;
+            padding-left: 10px;
+        }
+
+        /* Upgrade Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: #161616;
+            border: 1px solid #252525;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+        .card img {
+            width: 45px;
+            height: 45px;
+            margin-bottom: 8px;
+        }
+        .card h3 {
+            margin: 5px 0;
+            font-size: 15px;
+        }
+        .card .profit {
+            color: #06d6a0;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        .card .level-tag {
+            font-size: 11px;
+            color: #aaa;
+            background: #2a2a2a;
+            padding: 2px 8px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+        .upgrade-btn {
+            background: #ffb703;
+            color: #000;
+            border: none;
+            width: 100%;
+            padding: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .upgrade-btn:disabled {
+            background: #333 !important;
+            color: #777 !important;
+            cursor: not-allowed;
+        }
+
+        /* Tasks List */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .task-row {
+            background: #161616;
+            border: 1px solid #252525;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task-details h4 {
+            margin: 0;
+            font-size: 14px;
+        }
+        .task-details p {
+            margin: 4px 0 0 0;
+            font-size: 12px;
+            color: #ffb703;
+            font-weight: bold;
+        }
+        .task-action-btn {
+            background: #ffb703;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .task-action-btn:disabled {
+            background: #333;
+            color: #777;
+        }
+
+        /* Daily Cipher Box */
+        .cipher-container {
+            background: #111111;
+            border: 2px dashed #ffb703;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+        .cipher-container h3 {
+            margin: 0 0 5px 0;
+            color: #ffb703;
+        }
+        .cipher-container p {
+            font-size: 12px;
+            color: #aaa;
+            margin: 0 0 15px 0;
+        }
+        .cipher-input {
+            width: 85%;
+            padding: 12px;
+            border: 1px solid #333;
+            background: #1f1f1f;
+            color: #fff;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 16px;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+        .cipher-input:focus { outline: none; border-color: #ffb703; }
+        .cipher-submit-btn {
+            background: #ffb703;
+            color: #000;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        
+        <div class="header">
+            <h1>Markhor</h1>
+            <div class="balance-display" id="total-balance">0</div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-box">
+                <span>Gold (1 X Tap)</span>
+                <p id="tap-power">+1</p>
+            </div>
+            <div class="stat-box">
+                <span>Profit Per Hour</span>
+                <p id="profit-per-hour">+0 / HR</p>
+            </div>
+        </div>
+
+        <div class="mining-area">
+            <button class="markhor-tap-btn" id="mining-clicker" onclick="executeTapMining(event)">
+                <img src="https://cdn-icons-png.flaticon.com/512/2488/2488544.png" alt="Markhor Goat Logo">
+            </button>
+        </div>
+
+        <h2>Upgrade Cards</h2>
+        <div class="cards-grid">
+            <div class="card" id="card-basicMiner">
+                <img src="https://cdn-icons-png.flaticon.com/512/3437/3437364.png" alt="Miner">
+                <h3>Basic Miner</h3>
+                <div class="profit" id="profit-basicMiner">+40/hr</div>
+                <div class="level-tag" id="level-basicMiner">Lvl 1</div>
+                <button class="upgrade-btn" id="btn-basicMiner" onclick="triggerCardUpgrade('basicMiner')">500 MK</button>
+            </div>
+
+            <div class="card" id="card-teamManager">
+                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Manager">
+                <h3>Team Manager</h3>
+                <div class="profit" id="profit-teamManager">+100/hr</div>
+                <div class="level-tag" id="level-teamManager">Lvl 1</div>
+                <button class="upgrade-btn" id="btn-teamManager" onclick="triggerCardUpgrade('teamManager')">1,200 MK</button>
+            </div>
+        </div>
+
+        <h2>Tasks & Sponsorships</h2>
+        <div class="task-list">
+            <div class="task-row" id="row-task1">
+                <div class="task-details">
+                    <h4>Join Markhor Official Channel</h4>
+                    <p>+50,000 MK</p>
+                </div>
+                <button class="task-action-btn" id="btn-task1" onclick="handleTaskClick('https://t.me/MarkhorOfficialChannel', 'task1', 50000)">Go to Link</button>
+            </div>
+
+            <div class="task-row" id="row-task2">
+                <div class="task-details">
+                    <h4>✨ Partner: Crypto Whale Signals</h4>
+                    <p>+30,000 MK</p>
+                </div>
+                <button class="task-action-btn" id="btn-task2" onclick="handleTaskClick('https://t.me/SponsorChannelLink', 'task2', 30000)">Go to Link</button>
+            </div>
+        </div>
+
+        <div class="cipher-container">
+            <h3>🔒 Daily Cipher (Khufia Word)</h3>
+            <p>Crack the secret code to win 1,000,000 MK</p>
+            <input type="text" class="cipher-input" id="cipher-field" placeholder="ENTER WORD">
+            <button class="cipher-submit-btn" id="btn-cipher" onclick="verifyDailyCipher()">Claim Reward</button>
+        </div>
+
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. FIREBASE CONFIGURATION (اپنی ڈیٹیلز یہاں ایڈ کریں)
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const database = firebase.database();
+        const userId = "user_test_123"; // ٹیلی گرام یوزر آئی ڈی کے ساتھ ریپلیس کریں
+
+        // Local Game State
+        let userData = {
+            balance: 0,
+            hourlyProfit: 0,
+            tapPower: 1, // فی کلک ملنے والے کوائنز
+            cipherClaimed: false,
+            cards: {
+                basicMiner: { level: 1, profitPerHr: 40 },
+                teamManager: { level: 1, profitPerHr: 100 }
+            },
+            completedTasks: {}
+        };
+
+        // ==========================================
+        // 2. DATA SYNC FROM FIREBASE
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            database.ref('users/' + userId).once('value').then((snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    if(data.balance !== undefined) userData.balance = data.balance;
+                    if(data.hourlyProfit !== undefined) userData.hourlyProfit = data.hourlyProfit;
+                    if(data.tapPower !== undefined) userData.tapPower = data.tapPower;
+                    if(data.cipherClaimed !== undefined) userData.cipherClaimed = data.cipherClaimed;
+                    if(data.cards) userData.cards = {...userData.cards, ...data.cards};
+                    if(data.completedTasks) userData.completedTasks = data.completedTasks;
+                } else {
+                    database.ref('users/' + userId).set(userData);
+                }
+                
+                refreshUIComponents();
+                startHourlyProfitEngine();
+            });
+        });
+
+        function refreshUIComponents() {
+            document.getElementById('total-balance').innerText = Math.floor(userData.balance).toLocaleString();
+            document.getElementById('profit-per-hour').innerText = `+${userData.hourlyProfit} / HR`;
+            document.getElementById('tap-power').innerText = `+${userData.tapPower}`;
+
+            // کارڈز رینڈر کرنا
+            for (let cardId in userData.cards) {
+                let card = userData.cards[cardId];
+                document.getElementById(`level-${cardId}`).innerText = `Lvl ${card.level}`;
+                let currentReq = calculateCostAndCooldown(cardId, card.level);
+                document.getElementById(`btn-${cardId}`).innerText = `${currentReq.cost.toLocaleString()} MK`;
+            }
+
+            // ٹاسکس رینڈر کرنا
+            for (let taskId in userData.completedTasks) {
+                if (userData.completedTasks[taskId] === true) {
+                    let btn = document.getElementById(`btn-${taskId}`);
+                    if(btn) {
+                        btn.innerText = "Completed ✓";
+                        btn.disabled = true;
+                        btn.style.background = "#333";
+                    }
+                }
+            }
+
+            if (userData.cipherClaimed) {
+                document.getElementById('btn-cipher').innerText = "Claimed ✓";
+                document.getElementById('btn-cipher').disabled = true;
+            }
+        }
+
+        // ==========================================
+        // 3. MAIN TAP TO MINE LOGICWITH ANIMATION
+        // ==========================================
+        function executeTapMining(event) {
+            // کوائنز ایڈ کریں
+            userData.balance += userData.tapPower;
+            document.getElementById('total-balance').innerText = Math.floor(userData.balance).toLocaleString();
+
+            // پلو پلس (+1) فلوٹنگ ٹیکسٹ اینیمیشن بنانا
+            const clickerBtn = document.getElementById('mining-clicker');
+            const floatingText = document.createElement('div');
+            floatingText.classList.add('floating-text');
+            floatingText.innerText = `+${userData.tapPower}`;
+
+            // کلک کی پوزیشن کے مطابق نمبر پاپ اپ کرنا
+            const rect = clickerBtn.getBoundingClientRect();
+            let x = event.clientX - rect.left;
+            let y = event.clientY - rect.top;
+            
+            floatingText.style.left = `${x}px`;
+            floatingText.style.top = `${y}px`;
+
+            clickerBtn.parentElement.appendChild(floatingText);
+
+            // اینیمیشن ختم ہوتے ہی ایلیمنٹ ریمو کرنا
+            setTimeout(() => {
+                floatingText.remove();
+            }, 600);
+        }
+
+        // ==========================================
+        // 4. CARD UPGRADE & TIMERS LOGIC
+        // ==========================================
+        function calculateCostAndCooldown(cardId, currentLevel) {
+            let cooldownTime = 0;
+            let cost = (cardId === 'basicMiner') ? (500 * currentLevel) : (1200 * currentLevel);
+
+            if (currentLevel === 1) cooldownTime = 10;
+            else if (currentLevel === 2) cooldownTime = 30;
+            else cooldownTime = 60;
+
+            return { cost, cooldownTime };
+        }
+
+        function triggerCardUpgrade(cardId) {
+            let card = userData.cards[cardId];
+            let req = calculateCostAndCooldown(cardId, card.level);
+
+            if (userData.balance < req.cost) {
+                alert("Insufficient MK Balance!");
+                return;
+            }
+
+            userData.balance -= req.cost;
+            userData.hourlyProfit += card.profitPerHr;
+            // ہر کارڈ کے اپ گریڈ پر ٹیپ پاور بھی تھوڑی بڑھا دیتے ہیں
+            userData.tapPower += 1; 
+            card.level += 1;
+
+            database.ref('users/' + userId).update({
+                balance: userData.balance,
+                hourlyProfit: userData.hourlyProfit,
+                tapPower: userData.tapPower,
+                cards: userData.cards
+            });
+
+            refreshUIComponents();
+
+            let btn = document.getElementById(`btn-${cardId}`);
+            btn.disabled = true;
+            let timeLeft = req.cooldownTime;
+
+            let countdown = setInterval(() => {
+                btn.innerText = `Wait (${timeLeft}s)`;
+                timeLeft--;
+
+                if (timeLeft < 0) {
+                    clearInterval(countdown);
+                    btn.disabled = false;
+                    let nextReq = calculateCostAndCooldown(cardId, card.level);
+                    btn.innerText = `${nextReq.cost.toLocaleString()} MK`;
+                }
+            }, 1000);
+        }
+
+        // ==========================================
+        // 5. ADVERTISEMENT & TASK SYSTEM WITH HOLD TIME
+        // ==========================================
+        function handleTaskClick(url, taskId, reward) {
+            if (userData.completedTasks[taskId]) return;
+
+            window.open(url, '_blank');
+
+            let btn = document.getElementById(`btn-${taskId}`);
+            btn.disabled = true;
+            let checkTime = 8; // 8 سیکنڈ کا لازمی وزٹ ہولڈ
+
+            let checkTimer = setInterval(() => {
+                btn.innerText = `Checking (${checkTime}s)`;
+                checkTime--;
+
+                if (checkTime < 0) {
+                    clearInterval(checkTimer);
+                    btn.innerText = "Claim Reward";
+                    btn.disabled = false;
+                    btn.style.background = "#06d6a0"; 
+                    btn.onclick = () => executeTaskClaim(taskId, reward);
+                }
+            }, 1000);
+        }
+
+        function executeTaskClaim(taskId, reward) {
+            userData.balance += reward;
+            userData.completedTasks[taskId] = true;
+
+            database.ref('users/' + userId).update({
+                balance: userData.balance,
+                completedTasks: userData.completedTasks
+            });
+
+            alert(`🎉 Successfully claimed ${reward.toLocaleString()} MK!`);
+            refreshUIComponents();
+        }
+
+        // ==========================================
+        // 6. DAILY CIPHER SYSTEM (خفیہ لفظ)
+        // ==========================================
+        const targetCipher = {
+            word: "MARKHOR", 
+            reward: 1000000
+        };
+
+        function verifyDailyCipher() {
+            let enteredWord = document.getElementById('cipher-field').value.trim().toUpperCase();
+
+            if (userData.cipherClaimed) return;
+
+            if (enteredWord === targetCipher.word) {
+                userData.balance += targetCipher.reward;
+                userData.cipherClaimed = true;
+
+                database.ref('users/' + userId).update({
+                    balance: userData.balance,
+                    cipherClaimed: true
+                });
+
+                alert(`🔥 Fantastic! You won ${targetCipher.reward.toLocaleString()} MK!`);
+                refreshUIComponents();
+            } else {
+                alert("❌ Wrong Word! Hint: Check pinned post on our Telegram channel.");
+            }
+        }
+
+        // ==========================================
+        // 7. REALTIME PROFIT AUTO-SAVE ENGINE
+        // ==========================================
+        function startHourlyProfitEngine() {
+            setInterval(() => {
+                if (userData.hourlyProfit > 0) {
+                    let profitPerSecond = userData.hourlyProfit / 3600;
+                    userData.balance += profitPerSecond;
+                    document.getElementById('total-balance').innerText = Math.floor(userData.balance).toLocaleString();
+                }
+            }, 1000);
+
+            // آٹو سیو ڈیٹا بیس ہر 10 سیکنڈ بعد
+            setInterval(() => {
+                database.ref('users/' + userId).update({
+                    balance: userData.balance
+                });
+            }, 10000);
+        }
+    </script>
+</body>
+</html>
