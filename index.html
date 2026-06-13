@@ -4,681 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markhor Mining Application</title>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            background-color: #0c0c0c;
-            color: #ffffff;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            user-select: none;
-            -webkit-user-select: none;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; min-height: 100vh; }
+        .app-container { width: 100%; max-width: 480px; background-color: #000; padding-bottom: 80px; position: relative; }
+        
+        /* Header */
+        .top-header { text-align: center; padding: 20px; }
+        .main-balance { font-size: 45px; font-weight: bold; color: #ffb703; }
+        
+        /* Pages */
+        .page { display: none; padding: 20px; }
+        .active-page { display: block; }
 
-        /* Main Application Frame */
-        .app-container {
-            width: 100%;
-            max-width: 480px;
-            background-color: #000000;
-            padding: 20px 20px 90px 20px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
+        /* Mining Page */
+        .mining-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 50px; }
+        .tap-coin-btn { width: 250px; height: 250px; border-radius: 50%; border: 8px solid #ffb703; cursor: pointer; overflow: hidden; background: #111; }
+        .tap-coin-btn img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Top Static Header (Always Visible) */
-        .top-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .app-title {
-            font-size: 24px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            color: #ffffff;
-            margin-bottom: 5px;
-        }
-        .main-balance {
-            font-size: 46px;
-            font-weight: bold;
-            color: #ffb703;
-            text-shadow: 0 0 20px rgba(255, 183, 3, 0.3);
-        }
-
-        /* Stats Row */
-        .top-stats {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .stat-card {
-            flex: 1;
-            background: #141414;
-            border: 1px solid #222;
-            padding: 10px;
-            border-radius: 10px;
-            text-align: center;
-        }
-        .stat-card span {
-            display: block;
-            font-size: 11px;
-            color: #777;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-        }
-        .stat-card p {
-            font-size: 15px;
-            font-weight: bold;
-            color: #ffffff;
-        }
-
-        /* Section Container with View Switching */
-        .page-view {
-            display: none; /* Default hidden */
-            flex-direction: column;
-            flex-grow: 1;
-        }
-        .page-view.active {
-            display: flex; /* Shown when active */
-        }
-
-        /* --- 1. MINING PAGE VIEW --- */
-        .mining-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
-            margin: 20px 0;
-            position: relative;
-        }
-        .tap-coin-btn {
-            width: 240px;
-            height: 240px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #222222 0%, #0a0a0a 100%);
-            border: 6px solid #ffb703;
-            box-shadow: 0 0 35px rgba(255, 183, 3, 0.25);
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            outline: none;
-            transition: transform 0.05s ease;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .tap-coin-btn:active {
-            transform: scale(0.96);
-            box-shadow: 0 0 45px rgba(255, 183, 3, 0.4);
-        }
-        .tap-coin-btn img {
-            width: 85%;
-            height: 85%;
-            object-fit: contain;
-            pointer-events: none;
-        }
-        .floating-click-text {
-            position: absolute;
-            color: #ffb703;
-            font-size: 26px;
-            font-weight: bold;
-            pointer-events: none;
-            animation: moveUpAndFade 0.6s ease-out forwards;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.9);
-            z-index: 10;
-        }
-        @keyframes moveUpAndFade {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-120px) scale(1.2); }
-        }
-
-        /* --- 2. CARDS PAGE VIEW --- */
-        .section-title {
-            font-size: 18px;
-            color: #ffb703;
-            margin-bottom: 15px;
-            border-left: 4px solid #ffb703;
-            padding-left: 8px;
-        }
-        .upgrades-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        .upgrade-item {
-            background: #141414;
-            border: 1px solid #222;
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-        }
-        .upgrade-item img {
-            width: 45px;
-            height: 45px;
-            margin-bottom: 8px;
-        }
-        .upgrade-item h3 { font-size: 14px; margin-bottom: 4px; }
-        .upgrade-item .profit-val { font-size: 12px; color: #06d6a0; margin-bottom: 8px; }
-        .upgrade-item .level-badge {
-            font-size: 11px; color: #aaa; background: #222;
-            padding: 2px 8px; border-radius: 12px; display: inline-block; margin-bottom: 12px;
-        }
-        .action-upgrade-btn {
-            background: #ffb703; color: #000; border: none;
-            width: 100%; padding: 10px 0; border-radius: 8px;
-            font-weight: bold; cursor: pointer;
-        }
-        .action-upgrade-btn:disabled {
-            background: #2b2b2b !important; color: #666 !important; cursor: not-allowed;
-        }
-
-        /* --- 3. TASKS PAGE VIEW --- */
-        .task-stack { display: flex; flex-direction: column; gap: 12px; }
-        .task-item-row {
-            background: #141414; border: 1px solid #222;
-            padding: 15px; border-radius: 12px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .task-item-row h4 { font-size: 14px; margin-bottom: 4px; }
-        .task-item-row p { font-size: 12px; color: #ffb703; font-weight: bold; }
-        .task-trigger-btn {
-            background: #ffb703; color: #000; border: none;
-            padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;
-        }
-        .task-trigger-btn:disabled { background: #2b2b2b; color: #666; }
-
-        .cipher-block {
-            background: #0a0a0a; border: 2px dashed #ffb703;
-            padding: 20px; border-radius: 15px; text-align: center; margin-top: 25px;
-        }
-        .cipher-input-field {
-            width: 85%; padding: 10px; border: 1px solid #333;
-            background: #1a1a1a; color: #fff; border-radius: 6px;
-            text-align: center; font-size: 15px; margin: 10px 0;
-        }
-        .cipher-claim-btn {
-            background: #ffb703; color: #000; border: none;
-            padding: 8px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;
-        }
-
-        /* --- 4. REFERRALS VIEW --- */
-        .referral-box {
-            background: #141414; border: 1px solid #222;
-            padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;
-        }
-        .referral-link-display {
-            background: #000; padding: 12px; border-radius: 6px;
-            font-size: 13px; color: #ffb703; word-break: break-all;
-            margin: 10px 0; border: 1px dashed #333;
-        }
-        .invite-btn {
-            background: #ffb703; color: #000; border: none;
-            padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;
-        }
-
-        /* --- 5. LEADERBOARD VIEW --- */
-        .rank-list { display: flex; flex-direction: column; gap: 8px; }
-        .rank-row {
-            background: #141414; padding: 12px 15px;
-            border-radius: 8px; display: flex; justify-content: space-between; align-items: center;
-        }
-        .rank-number { font-weight: bold; color: #ffb703; width: 30px; }
-        .rank-name { flex-grow: 1; text-align: left; margin-left: 10px; }
-        .rank-score { font-weight: bold; color: #06d6a0; }
-
-        /* --- BOTTOM FIXED NAVIGATION MENU --- */
-        .bottom-nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 480px;
-            background-color: #111111;
-            border-top: 2px solid #222;
-            display: flex;
-            height: 70px;
-            z-index: 500;
-        }
-        .nav-tab-btn {
-            flex: 1;
-            background: none;
-            border: none;
-            color: #888;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: 500;
-            gap: 4px;
-        }
-        .nav-tab-btn svg {
-            width: 22px;
-            height: 22px;
-            fill: currentColor;
-        }
-        .nav-tab-btn.active {
-            color: #ffb703;
-            font-weight: bold;
-        }
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: #111; display: flex; justify-content: space-around; padding: 15px 0; border-top: 2px solid #222; }
+        .nav-btn { color: #888; cursor: pointer; font-size: 12px; }
+        .nav-btn.active { color: #ffb703; }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        
-        <!-- Global Top Engine Status Header -->
-        <div class="top-header">
-            <div class="app-title">Markhor Token</div>
-            <div class="main-balance" id="ui-balance">0</div>
-        </div>
-
-        <div class="top-stats">
-            <div class="stat-card">
-                <span>Gold (1 X Tap)</span>
-                <p id="ui-tappower">+1</p>
-            </div>
-            <div class="stat-card">
-                <span>Profit Per Hour</span>
-                <p id="ui-profit">+0 / HR</p>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- TAB VIEW 1: MINING INTERFACE -->
-        <!-- ========================================== -->
-        <div id="view-mining" class="page-view active">
-            <div class="mining-container">
-                <button class="tap-coin-btn" id="coin-clicker" onclick="handleMiningTap(event)">
-                    <!-- یہاں آپ اپنی مارخور کی ریل تصویر کا پاتھ ڈال سکتے ہیں -->
-                    <img src="https://cdn-icons-png.flaticon.com/512/2488/2488544.png" alt="Markhor Active Coin Logo">
-                </button>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- TAB VIEW 2: UPGRADE CARDS INTERFACE -->
-        <!-- ========================================== -->
-        <div id="view-cards" class="page-view">
-            <h2 class="section-title">Upgrade Mining Gear</h2>
-            <div class="upgrades-grid">
-                <div class="upgrade-item">
-                    <img src="https://cdn-icons-png.flaticon.com/512/3437/3437364.png" alt="Card Basic">
-                    <h3>Basic Miner</h3>
-                    <div class="profit-val" id="profit-basicMiner">+40/hr</div>
-                    <div class="level-badge" id="level-basicMiner">Lvl 1</div>
-                    <button class="action-upgrade-btn" id="btn-basicMiner" onclick="handleCardUpgrade('basicMiner')">500 MK</button>
-                </div>
-
-                <div class="upgrade-item">
-                    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Card Manager">
-                    <h3>Team Manager</h3>
-                    <div class="profit-val" id="profit-teamManager">+100/hr</div>
-                    <div class="level-badge" id="level-teamManager">Lvl 1</div>
-                    <button class="action-upgrade-btn" id="btn-teamManager" onclick="handleCardUpgrade('teamManager')">1,200 MK</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- TAB VIEW 3: TASKS & CIPHER INTERFACE -->
-        <!-- ========================================== -->
-        <div id="view-tasks" class="page-view">
-            <h2 class="section-title">Earn Extra Rewards</h2>
-            <div class="task-stack">
-                <div class="task-item-row" id="row-task1">
-                    <div>
-                        <h4>Join Markhor Telegram Channel</h4>
-                        <p>+50,000 MK</p>
-                    </div>
-                    <button class="task-trigger-btn" id="btn-task1" onclick="handleTaskVerification('https://t.me/MarkhorOfficialChannel', 'task1', 50000)">Go to Link</button>
-                </div>
-
-                <div class="task-item-row" id="row-task2">
-                    <div>
-                        <h4>✨ Sponsor: Crypto News Network</h4>
-                        <p>+30,000 MK</p>
-                    </div>
-                    <button class="task-trigger-btn" id="btn-task2" onclick="handleTaskVerification('https://t.me/SponsorChannelLink', 'task2', 30000)">Go to Link</button>
-                </div>
-            </div>
-
-            <div class="cipher-block">
-                <h3>🔒 Daily Cipher Word</h3>
-                <input type="text" class="cipher-input-field" id="cipher-field" placeholder="ENTER SECRET WORD">
-                <br>
-                <button class="cipher-claim-btn" id="btn-cipher" onclick="checkSecretCipher()">Verify Code</button>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- TAB VIEW 4: REFERRAL INVITATIONS -->
-        <!-- ========================================== -->
-        <div id="view-referral" class="page-view">
-            <h2 class="section-title">Invite Friends</h2>
-            <div class="referral-box">
-                <p>Earn +25,000 MK coins for every successful invite!</p>
-                <div class="referral-link-display" id="ref-link">https://t.me/Markhor_Mining_Bot?start=ref123456</div>
-                <button class="invite-btn" onclick="copyReferralLink()">Copy Link</button>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- TAB VIEW 5: GLOBAL LEADERBOARD -->
-        <!-- ========================================== -->
-        <div id="view-leaderboard" class="page-view">
-            <h2 class="section-title">Global Top Miners</h2>
-            <div class="rank-list">
-                <div class="rank-row">
-                    <span class="rank-number">🥇</span>
-                    <span class="rank-name">Crypto_King</span>
-                    <span class="rank-score">12,450,000 MK</span>
-                </div>
-                <div class="rank-row">
-                    <span class="rank-number">🥈</span>
-                    <span class="rank-name">Ali_Developer</span>
-                    <span class="rank-score">9,100,000 MK</span>
-                </div>
-                <div class="rank-row">
-                    <span class="rank-number">🥉</span>
-                    <span class="rank-name">Markhor_Boss</span>
-                    <span class="rank-score">7,850,000 MK</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- FIXED BOTTOM NAVIGATION SYSTEM -->
-        <!-- ========================================== -->
-        <nav class="bottom-nav-bar">
-            <button class="nav-tab-btn active" onclick="switchTab(event, 'view-mining')">
-                <svg viewBox="0 0 24 24"><path d="M19 19H5V11H19M12 3L2 12H5V21H19V12H22L12 3Z"/></svg>
-                Mining
-            </button>
-            <button class="nav-tab-btn" onclick="switchTab(event, 'view-cards')">
-                <svg viewBox="0 0 24 24"><path d="M12,18H6V14H12M21,14V18H15V14M12,6V10H6V6M21,6V10H15V6M2,2V22H22V2M4,4V20H20V4H4Z"/></svg>
-                Upgrades
-            </button>
-            <button class="nav-tab-btn" onclick="switchTab(event, 'view-tasks')">
-                <svg viewBox="0 0 24 24"><path d="M19,19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M16.5,10L15.08,8.58L10.5,13.17L8.92,11.59L7.5,13L10.5,16L16.5,10Z"/></svg>
-                Tasks
-            </button>
-            <button class="nav-tab-btn" onclick="switchTab(event, 'view-referral')">
-                <svg viewBox="0 0 24 24"><path d="M16 13c-2.28 0-4-1.72-4-4s1.72-4 4-4 4 1.72 4 4-1.72 4-4 4zm-8-4c0-1.85.63-3.55 1.69-4.9C7.87 3.4 6.01 3 4 3 1.79 3 0 4.79 0 7v2c0 .55.45 1 1 1h5.31C6.11 9.68 6 9.35 6 9zm10 6c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                Friends
-            </button>
-            <button class="nav-tab-btn" onclick="switchTab(event, 'view-leaderboard')">
-                <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
-                Ranking
-            </button>
-        </nav>
-
+<div class="app-container">
+    <div class="top-header">
+        <div class="main-balance" id="ui-balance">0</div>
     </div>
 
-    <!-- Application Operational JavaScript Core -->
-    <script>
-        // ==========================================
-        // 1. DATABASE CONFIGURATION
-        // ==========================================
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+    <!-- 1. Mining Page -->
+    <div id="page-mining" class="page active-page">
+        <div class="mining-container">
+            <button class="tap-coin-btn" id="tap-btn">
+                <!-- یہاں اپنی تصویر کا لنک لگائیں -->
+                <img src="https://cdn-icons-png.flaticon.com/512/2488/2488544.png" id="markhor-img">
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. Upgrades Page -->
+    <div id="page-upgrades" class="page">
+        <h2>Upgrade Cards</h2>
+        <p style="color: #666; margin-top: 10px;">مزید کارڈز یہاں دکھائی دیں گے...</p>
+    </div>
+
+    <!-- 3. Tasks Page -->
+    <div id="page-tasks" class="page">
+        <h2>Tasks</h2>
+        <p style="color: #666; margin-top: 10px;">ٹاسک اور انعامات یہاں آئیں گے...</p>
+    </div>
+
+    <!-- 4. Leaderboard Page -->
+    <div id="page-leaderboard" class="page">
+        <h2>Leaderboard</h2>
+        <p style="color: #666; margin-top: 10px;">ٹاپ مائنرز کی فہرست یہاں ہوگی...</p>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-btn active" onclick="switchTab('page-mining', this)">Mining</div>
+        <div class="nav-btn" onclick="switchTab('page-upgrades', this)">Upgrades</div>
+        <div class="nav-btn" onclick="switchTab('page-tasks', this)">Tasks</div>
+        <div class="nav-btn" onclick="switchTab('page-leaderboard', this)">Leaderboard</div>
+    </div>
+</div>
+
+<script>
+    let balance = 0;
+    const balanceEl = document.getElementById('ui-balance');
+    const tapBtn = document.getElementById('tap-btn');
+
+    // ٹیپنگ لاجک
+    tapBtn.addEventListener('click', () => {
+        balance += 1;
+        balanceEl.innerText = balance;
+    });
+
+    // نیویگیشن لاجک
+    function switchTab(pageId, btn) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const database = firebase.database();
-        const userId = "user_test_123"; // ٹیلی گرام یوزر پاتھ آئی ڈی
+        document.getElementById(pageId).classList.add('active-page');
+        btn.classList.add('active');
+    }
+</script>
 
-        // Game Memory Engine Storage
-        let appState = {
-            balance: 0,
-            hourlyProfit: 0,
-            tapPower: 1,
-            cipherClaimed: false,
-            cards: {
-                basicMiner: { level: 1, profitPerHr: 40 },
-                teamManager: { level: 1, profitPerHr: 100 }
-            },
-            completedTasks: {}
-        };
-
-        // ==========================================
-        // 2. VIEW CONTROLLER (TAB SWITCHING)
-        // ==========================================
-        function switchTab(event, targetViewId) {
-            // تمام پیجز کو پوشیدہ کریں
-            const elements = document.querySelectorAll('.page-view');
-            elements.forEach(view => view.classList.remove('active'));
-
-            // تمام مینیو بٹنز کو ڈی ایکٹیویٹ کریں
-            const navButtons = document.querySelectorAll('.nav-tab-btn');
-            navButtons.forEach(btn => btn.classList.remove('active'));
-
-            // مطلوبہ پیج کو لائیو شو کریں
-            document.getElementById(targetViewId).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
-
-        // ==========================================
-        // 3. FIREBASE SYNCHRONIZER
-        // ==========================================
-        window.addEventListener('DOMContentLoaded', () => {
-            database.ref('users/' + userId).once('value').then((snapshot) => {
-                if (snapshot.exists()) {
-                    const node = snapshot.val();
-                    if(node.balance !== undefined) appState.balance = node.balance;
-                    if(node.hourlyProfit !== undefined) appState.hourlyProfit = node.hourlyProfit;
-                    if(node.tapPower !== undefined) appState.tapPower = node.tapPower;
-                    if(node.cipherClaimed !== undefined) appState.cipherClaimed = node.cipherClaimed;
-                    if(node.cards) appState.cards = {...appState.cards, ...node.cards};
-                    if(node.completedTasks) appState.completedTasks = node.completedTasks;
-                } else {
-                    database.ref('users/' + userId).set(appState);
-                }
-                
-                syncDOMData();
-                executeGlobalProfitLoop();
-            });
-        });
-
-        function syncDOMData() {
-            document.getElementById('ui-balance').innerText = Math.floor(appState.balance).toLocaleString();
-            document.getElementById('ui-profit').innerText = `+${appState.hourlyProfit} / HR`;
-            document.getElementById('ui-tappower').innerText = `+${appState.tapPower}`;
-
-            for (let id in appState.cards) {
-                let instance = appState.cards[id];
-                document.getElementById(`level-${id}`).innerText = `Lvl ${instance.level}`;
-                let scale = fetchUpgradeConstraints(id, instance.level);
-                document.getElementById(`btn-${id}`).innerText = `${scale.cost.toLocaleString()} MK`;
-            }
-
-            for (let tId in appState.completedTasks) {
-                if (appState.completedTasks[tId] === true) {
-                    let targetBtn = document.getElementById(`btn-${tId}`);
-                    if(targetBtn) {
-                        targetBtn.innerText = "Completed ✓";
-                        targetBtn.disabled = true;
-                        targetBtn.style.background = "#222";
-                    }
-                }
-            }
-
-            if (appState.cipherClaimed) {
-                document.getElementById('btn-cipher').innerText = "Claimed ✓";
-                document.getElementById('btn-cipher').disabled = true;
-            }
-        }
-
-        // ==========================================
-        // 4. ACTION CONTROLLER: TAP MINING
-        // ==========================================
-        function handleMiningTap(event) {
-            appState.balance += appState.tapPower;
-            document.getElementById('ui-balance').innerText = Math.floor(appState.balance).toLocaleString();
-
-            const frame = document.getElementById('coin-clicker');
-            const floatingText = document.createElement('div');
-            floatingText.classList.add('floating-text-item');
-            floatingText.className = 'floating-click-text';
-            floatingText.innerText = `+${appState.tapPower}`;
-
-            const rect = frame.getBoundingClientRect();
-            let clickX = event.clientX - rect.left;
-            let clickY = event.clientY - rect.top;
-            
-            floatingText.style.left = `${clickX}px`;
-            floatingText.style.top = `${clickY}px`;
-
-            frame.parentElement.appendChild(floatingText);
-
-            setTimeout(() => { floatingText.remove(); }, 600);
-        }
-
-        // ==========================================
-        // 5. ACTION CONTROLLER: UPGRADES & TIMER RULES
-        // ==========================================
-        function fetchUpgradeConstraints(cardId, level) {
-            let cooldownTime = 0;
-            let cost = (cardId === 'basicMiner') ? (500 * level) : (1200 * level);
-
-            if (level === 1) cooldownTime = 10;
-            else if (level === 2) cooldownTime = 30;
-            else cooldownTime = 60;
-
-            return { cost, cooldownTime };
-        }
-
-        function handleCardUpgrade(cardId) {
-            let activeCard = appState.cards[cardId];
-            let spec = fetchUpgradeConstraints(cardId, activeCard.level);
-
-            if (appState.balance < spec.cost) {
-                alert("Insufficient MK Balance!");
-                return;
-            }
-
-            appState.balance -= spec.cost;
-            appState.hourlyProfit += activeCard.profitPerHr;
-            appState.tapPower += 1; 
-            activeCard.level += 1;
-
-            database.ref('users/' + userId).update({
-                balance: appState.balance,
-                hourlyProfit: appState.hourlyProfit,
-                tapPower: appState.tapPower,
-                cards: appState.cards
-            });
-
-            syncDOMData();
-
-            let targetNode = document.getElementById(`btn-${cardId}`);
-            targetNode.disabled = true;
-            let currentCooldown = spec.cooldownTime;
-
-            let runtimeTimer = setInterval(() => {
-                targetNode.innerText = `Wait (${currentCooldown}s)`;
-                currentCooldown--;
-
-                if (currentCooldown < 0) {
-                    clearInterval(runtimeTimer);
-                    targetNode.disabled = false;
-                    let advancedSpec = fetchUpgradeConstraints(cardId, activeCard.level);
-                    targetNode.innerText = `${advancedSpec.cost.toLocaleString()} MK`;
-                }
-            }, 1000);
-        }
-
-        // ==========================================
-        // 6. AD SYSTEM & CIPHER
-        // ==========================================
-        function handleTaskVerification(url, taskId, bonus) {
-            if (appState.completedTasks[taskId]) return;
-            window.open(url, '_blank');
-
-            let domBtn = document.getElementById(`btn-${taskId}`);
-            domBtn.disabled = true;
-            let countdown = 8;
-
-            let tracker = setInterval(() => {
-                domBtn.innerText = `Checking (${countdown}s)`;
-                countdown--;
-
-                if (countdown < 0) {
-                    clearInterval(tracker);
-                    domBtn.innerText = "Claim Reward";
-                    domBtn.disabled = false;
-                    domBtn.onclick = () => {
-                        appState.balance += bonus;
-                        appState.completedTasks[taskId] = true;
-                        database.ref('users/' + userId).update({
-                            balance: appState.balance,
-                            completedTasks: appState.completedTasks
-                        });
-                        alert("Task reward processed successfully!");
-                        syncDOMData();
-                    };
-                }
-            }, 1000);
-        }
-
-        function checkSecretCipher() {
-            let phrase = document.getElementById('cipher-field').value.trim().toUpperCase();
-            if (phrase === "MARKHOR" && !appState.cipherClaimed) {
-                appState.balance += 1000000;
-                appState.cipherClaimed = true;
-                database.ref('users/' + userId).update({
-                    balance: appState.balance,
-                    cipherClaimed: true
-                });
-                alert("🎉 Cipher Crushed! +1,000,000 MK added.");
-                syncDOMData();
-            } else {
-                alert("Incorrect code or already processed!");
-            }
-        }
-
-        function copyReferralLink() {
-            let link = document.getElementById('ref-link').innerText;
-            navigator.clipboard.writeText(link);
-            alert("Referral Link copied to Clipboard!");
-        }
-
-        // ==========================================
-        // 7. REALTIME IDLE CALCULATOR ENGINE
-        // ==========================================
-        function executeGlobalProfitLoop() {
-            setInterval(() => {
-                if (appState.hourlyProfit > 0) {
-                    appState.balance += (appState.hourlyProfit / 3600);
-                    document.getElementById('ui-balance').innerText = Math.floor(appState.balance).toLocaleString();
-                }
-            }, 1000);
-
-            setInterval(() => {
-                database.ref('users/' + userId).update({ balance: appState.balance });
-            }, 10000);
-        }
-    </script>
 </body>
 </html>
